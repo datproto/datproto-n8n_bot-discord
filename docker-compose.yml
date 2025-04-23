@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  discord-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discord-n8n-bot
+    restart: unless-stopped
+    environment:
+      - DISCORD_TOKEN=your_discord_bot_token
+      - DISCORD_CLIENT_ID=your_discord_client_id
+      - N8N_WEBHOOK_URL=your_n8n_webhook_url
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    networks:
+      - bot-network
+
+  # You can add additional bot services here if needed
+  # bot2:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: bot2
+  #   restart: unless-stopped
+  #   environment:
+  #     - DISCORD_TOKEN=your_second_bot_token
+  #     - DISCORD_CLIENT_ID=your_second_client_id
+  #     - N8N_WEBHOOK_URL=your_second_webhook_url
+  #   volumes:
+  #     - ./:/app
+  #     - /app/node_modules
+  #   networks:
+  #     - bot-network
+
+  # bot3:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: bot3
+  #   restart: unless-stopped
+  #   environment:
+  #     - DISCORD_TOKEN=your_third_bot_token
+  #     - DISCORD_CLIENT_ID=your_third_client_id
+  #     - N8N_WEBHOOK_URL=your_third_webhook_url
+  #   volumes:
+  #     - ./:/app
+  #     - /app/node_modules
+  #   networks:
+  #     - bot-network
+
+networks:
+  bot-network:
+    driver: bridge
