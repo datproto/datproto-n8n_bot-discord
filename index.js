@@ -76,8 +76,16 @@ const sendToN8n = async (data, eventType) => {
             timestamp: Date.now(),
             ...data
         };
+
+        // Log the payload in a readable format
+        console.log('\nSending to n8n:');
+        console.log('Event Type:', eventType);
+        console.log('Timestamp:', new Date(payload.timestamp).toISOString());
+        console.log('Payload:', JSON.stringify(payload, null, 2));
+        console.log('----------------------------------------');
+
         await axios.post(process.env.N8N_WEBHOOK_URL, payload);
-        console.log(`Forwarded ${eventType} to n8n`);
+        console.log(`Successfully forwarded ${eventType} to n8n`);
     } catch (error) {
         console.error(`Error forwarding ${eventType} to n8n:`, error);
     }
