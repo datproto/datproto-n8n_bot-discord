@@ -11,9 +11,7 @@ services:
       - DISCORD_TOKEN=${DISCORD_TOKEN}
       - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
       - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL}
-    volumes:
-      - ./:/app
-      - /app/node_modules
+    # Remove volume mapping to avoid conflicts with the container's file system
     networks:
       - bot-network
 
