@@ -126,8 +126,23 @@ const createEventData = (event, eventType, options = {}) => {
     } = options;
 
     // Get the appropriate channel and thread objects
-    const channel = isThread ? event.channel.parent : event.channel;
-    const thread = isThread ? event.channel : null;
+    let channel, thread;
+    if (isReaction) {
+        // For reactions, we need to handle both thread and non-thread cases
+        const messageChannel = event.message.channel;
+        if (messageChannel.isThread()) {
+            channel = messageChannel.parent;
+            thread = messageChannel;
+        } else {
+            channel = messageChannel;
+            thread = null;
+        }
+    } else {
+        // For other events
+        channel = isThread ? event.channel.parent : event.channel;
+        thread = isThread ? event.channel : null;
+    }
+
     const message = isReaction ? event.message : event;
     const eventAuthor = author || event.author || event.user;
 
@@ -147,9 +162,9 @@ const createEventData = (event, eventType, options = {}) => {
             discriminator: eventAuthor.discriminator || '0000'
         },
         channel: {
-            id: channel.id,
-            name: channel.name || 'Unknown',
-            type: channel.type || 'text'
+            id: channel?.id || 'unknown',
+            name: channel?.name || 'Unknown',
+            type: channel?.type || 'text'
         },
         guild: message.guild ? {
             id: message.guild.id,
@@ -161,7 +176,7 @@ const createEventData = (event, eventType, options = {}) => {
     };
 
     // Add thread data if it's a thread event or message in thread
-    if (isThread || isThreadEvent) {
+    if (thread) {
         data.thread = {
             id: thread.id,
             name: thread.name,
