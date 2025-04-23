@@ -9,9 +9,28 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.DirectMessages,
-        GatewayIntentBits.GuildMessageReactions
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessageTyping,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildIntegrations,
+        GatewayIntentBits.GuildWebhooks,
+        GatewayIntentBits.GuildInvites,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessageTyping,
+        GatewayIntentBits.DirectMessageTyping,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildScheduledEvents,
+        GatewayIntentBits.AutoModerationConfiguration,
+        GatewayIntentBits.AutoModerationExecution
     ],
-    partials: [Partials.Channel, Partials.Message, Partials.Reaction]
+    partials: [Partials.Channel, Partials.Message, Partials.Reaction, Partials.ThreadMember, Partials.User]
 });
 
 // Utility functions for data formatting
@@ -217,4 +236,123 @@ process.on('SIGINT', () => {
 });
 
 // Login to Discord with your app's token
-client.login(process.env.DISCORD_TOKEN); 
+client.login(process.env.DISCORD_TOKEN);
+
+// Utility function to create thread data object
+const createThreadData = (thread, eventType, author = null, changes = null) => {
+    const threadOwner = author || thread.owner;
+    return {
+        content: {
+            text: eventType === 'thread_member_join' ? `${author?.tag} joined the thread` :
+                  eventType === 'thread_member_leave' ? `${author?.tag} left the thread` :
+                  thread.name,
+            type: eventType
+        },
+        author: {
+            id: threadOwner?.id || thread.ownerId,
+            username: threadOwner?.username || 'Unknown',
+            discriminator: threadOwner?.discriminator || '0000'
+        },
+        channel: {
+            id: thread.parentId,
+            name: thread.parent?.name || 'Unknown',
+            type: thread.parent?.type || 'text'
+        },
+        guild: thread.guild ? {
+            id: thread.guild.id,
+            name: thread.guild.name
+        } : null,
+        message_id: thread.id,
+        original_message: thread,
+        timestamp: Date.now(),
+        thread: {
+            id: thread.id,
+            name: thread.name,
+            type: thread.type,
+            archived: thread.archived,
+            auto_archive_duration: thread.autoArchiveDuration,
+            locked: thread.locked,
+            parent_id: thread.parentId,
+            rate_limit_per_user: thread.rateLimitPerUser
+        },
+        ...(changes && { changes })
+    };
+};
+
+// Thread Creation Handler
+client.on('threadCreate', async (thread) => {
+    console.log('Thread created:', thread.name);
+    try {
+        const threadData = createThreadData(thread, 'thread_create');
+        await sendToN8n(threadData, 'thread_create');
+    } catch (error) {
+        console.error('Error processing thread creation:', error);
+    }
+});
+
+// Thread Deletion Handler
+client.on('threadDelete', async (thread) => {
+    console.log('Thread deleted:', thread.name);
+    try {
+        const threadData = createThreadData(thread, 'thread_delete');
+        await sendToN8n(threadData, 'thread_delete');
+    } catch (error) {
+        console.error('Error processing thread deletion:', error);
+    }
+});
+
+// Thread Update Handler
+client.on('threadUpdate', async (oldThread, newThread) => {
+    console.log('Thread updated:', newThread.name);
+    try {
+        const changes = {
+            name: oldThread.name !== newThread.name ? {
+                old: oldThread.name,
+                new: newThread.name
+            } : null,
+            archived: oldThread.archived !== newThread.archived ? {
+                old: oldThread.archived,
+                new: newThread.archived
+            } : null,
+            locked: oldThread.locked !== newThread.locked ? {
+                old: oldThread.locked,
+                new: newThread.locked
+            } : null,
+            auto_archive_duration: oldThread.autoArchiveDuration !== newThread.autoArchiveDuration ? {
+                old: oldThread.autoArchiveDuration,
+                new: newThread.autoArchiveDuration
+            } : null,
+            rate_limit_per_user: oldThread.rateLimitPerUser !== newThread.rateLimitPerUser ? {
+                old: oldThread.rateLimitPerUser,
+                new: newThread.rateLimitPerUser
+            } : null
+        };
+
+        const threadData = createThreadData(newThread, 'thread_update', null, changes);
+        await sendToN8n(threadData, 'thread_update');
+    } catch (error) {
+        console.error('Error processing thread update:', error);
+    }
+});
+
+// Thread Member Join Handler
+client.on('threadMemberAdd', async (member) => {
+    console.log('User joined thread:', member.thread.name);
+    try {
+        const threadData = createThreadData(member.thread, 'thread_member_join', member.user);
+        await sendToN8n(threadData, 'thread_member_join');
+    } catch (error) {
+        console.error('Error processing thread member join:', error);
+    }
+});
+
+// Thread Member Leave Handler
+client.on('threadMemberRemove', async (member) => {
+    console.log('User left thread:', member.thread.name);
+    try {
+        const threadData = createThreadData(member.thread, 'thread_member_leave', member.user);
+        await sendToN8n(threadData, 'thread_member_leave');
+    } catch (error) {
+        console.error('Error processing thread member leave:', error);
+    }
+}); 
