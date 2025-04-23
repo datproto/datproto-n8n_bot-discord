@@ -109,8 +109,23 @@ client.on('messageCreate', async (message) => {
                 text: message.content,
                 type: getContentType(message)
             },
-            ...formatMessage(message),
-            original_message: message
+            author: {
+                id: message.author.id,
+                username: message.author.username,
+                discriminator: message.author.discriminator
+            },
+            channel: {
+                id: message.channel.id,
+                name: message.channel.name,
+                type: message.channel.type
+            },
+            guild: message.guild ? {
+                id: message.guild.id,
+                name: message.guild.name
+            } : null,
+            message_id: message.id,
+            original_message: message,
+            timestamp: message.createdTimestamp
         };
 
         await sendToN8n(messageData, 'message_create');
@@ -150,9 +165,33 @@ const handleReaction = async (reaction, user, eventType) => {
 
     try {
         const reactionData = {
-            reaction: formatReaction(reaction),
-            user: formatUser(user),
-            message: formatMessage(reaction.message)
+            content: {
+                text: reaction.emoji.toString(),
+                type: 'reaction'
+            },
+            author: {
+                id: user.id,
+                username: user.username,
+                discriminator: user.discriminator
+            },
+            channel: {
+                id: reaction.message.channel.id,
+                name: reaction.message.channel.name,
+                type: reaction.message.channel.type
+            },
+            guild: reaction.message.guild ? {
+                id: reaction.message.guild.id,
+                name: reaction.message.guild.name
+            } : null,
+            message_id: reaction.message.id,
+            original_message: reaction.message,
+            timestamp: Date.now(),
+            reaction: {
+                emoji: reaction.emoji.toString(),
+                emoji_id: reaction.emoji.id,
+                emoji_name: reaction.emoji.name,
+                animated: reaction.emoji.animated
+            }
         };
 
         await sendToN8n(reactionData, eventType);
