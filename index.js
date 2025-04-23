@@ -115,45 +115,98 @@ client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
-// Listen for messages
+// Unified data structure creator
+const createEventData = (event, eventType, options = {}) => {
+    const {
+        isThread = false,
+        isReaction = false,
+        isThreadEvent = false,
+        changes = null,
+        author = null
+    } = options;
+
+    // Get the appropriate channel and thread objects
+    const channel = isThread ? event.channel.parent : event.channel;
+    const thread = isThread ? event.channel : null;
+    const message = isReaction ? event.message : event;
+    const eventAuthor = author || event.author || event.user;
+
+    // Base data structure
+    const data = {
+        content: {
+            text: isReaction ? event.emoji.toString() : 
+                  isThreadEvent ? (eventType.includes('member') ? 
+                    `${eventAuthor.tag} ${eventType.includes('join') ? 'joined' : 'left'} the thread` : 
+                    event.name) : 
+                  message.content,
+            type: eventType
+        },
+        author: {
+            id: eventAuthor.id,
+            username: eventAuthor.username || 'Unknown',
+            discriminator: eventAuthor.discriminator || '0000'
+        },
+        channel: {
+            id: channel.id,
+            name: channel.name || 'Unknown',
+            type: channel.type || 'text'
+        },
+        guild: message.guild ? {
+            id: message.guild.id,
+            name: message.guild.name
+        } : null,
+        message_id: message.id,
+        original_message: message,
+        timestamp: Date.now()
+    };
+
+    // Add thread data if it's a thread event or message in thread
+    if (isThread || isThreadEvent) {
+        data.thread = {
+            id: thread.id,
+            name: thread.name,
+            type: thread.type,
+            archived: thread.archived,
+            auto_archive_duration: thread.autoArchiveDuration,
+            locked: thread.locked,
+            parent_id: thread.parentId,
+            rate_limit_per_user: thread.rateLimitPerUser
+        };
+    }
+
+    // Add reaction data if it's a reaction event
+    if (isReaction) {
+        data.reaction = {
+            emoji: event.emoji.toString(),
+            emoji_id: event.emoji.id,
+            emoji_name: event.emoji.name,
+            animated: event.emoji.animated
+        };
+    }
+
+    // Add changes if it's a thread update event
+    if (changes) {
+        data.changes = changes;
+    }
+
+    return data;
+};
+
+// Message handler
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
-    console.log('Received Discord message:', message);
-    console.log('----------------------------------------');
-
     try {
-        const messageData = {
-            content: {
-                text: message.content,
-                type: getContentType(message)
-            },
-            author: {
-                id: message.author.id,
-                username: message.author.username,
-                discriminator: message.author.discriminator
-            },
-            channel: {
-                id: message.channel.id,
-                name: message.channel.name,
-                type: message.channel.type
-            },
-            guild: message.guild ? {
-                id: message.guild.id,
-                name: message.guild.name
-            } : null,
-            message_id: message.id,
-            original_message: message,
-            timestamp: message.createdTimestamp
-        };
-
-        await sendToN8n(messageData, 'message_create');
+        const isThread = message.channel.isThread();
+        const eventType = isThread ? 'thread_message' : 'message_create';
+        const messageData = createEventData(message, eventType, { isThread });
+        await sendToN8n(messageData, eventType);
     } catch (error) {
         console.error('Error processing message:', error);
     }
 });
 
-// Helper function to handle reaction events
+// Reaction handler
 const handleReaction = async (reaction, user, eventType) => {
     if (user.bot) return;
 
@@ -176,134 +229,40 @@ const handleReaction = async (reaction, user, eventType) => {
         }
     }
 
-    console.log(`${eventType === 'reaction_add' ? 'Received' : 'Removed'} reaction:`, {
-        emoji: reaction.emoji.toString(),
-        user: user.tag,
-        messageId: reaction.message.id
-    });
-
     try {
-        const reactionData = {
-            content: {
-                text: reaction.emoji.toString(),
-                type: 'reaction'
-            },
-            author: {
-                id: user.id,
-                username: user.username,
-                discriminator: user.discriminator
-            },
-            channel: {
-                id: reaction.message.channel.id,
-                name: reaction.message.channel.name,
-                type: reaction.message.channel.type
-            },
-            guild: reaction.message.guild ? {
-                id: reaction.message.guild.id,
-                name: reaction.message.guild.name
-            } : null,
-            message_id: reaction.message.id,
-            original_message: reaction.message,
-            timestamp: Date.now(),
-            reaction: {
-                emoji: reaction.emoji.toString(),
-                emoji_id: reaction.emoji.id,
-                emoji_name: reaction.emoji.name,
-                animated: reaction.emoji.animated
-            }
-        };
-
-        await sendToN8n(reactionData, eventType);
+        const isThread = reaction.message.channel.isThread();
+        const fullEventType = isThread ? `thread_${eventType}` : eventType;
+        const reactionData = createEventData(reaction, fullEventType, { 
+            isThread, 
+            isReaction: true,
+            author: user 
+        });
+        await sendToN8n(reactionData, fullEventType);
     } catch (error) {
         console.error(`Error processing ${eventType}:`, error);
     }
 };
 
-// Listen for reactions
-client.on('messageReactionAdd', (reaction, user) => handleReaction(reaction, user, 'reaction_add'));
-client.on('messageReactionRemove', (reaction, user) => handleReaction(reaction, user, 'reaction_remove'));
-
-// Handle errors
-client.on('error', (error) => {
-    console.error('Discord client error:', error);
-});
-
-// Handle process termination
-process.on('SIGINT', () => {
-    console.log('Shutting down...');
-    client.destroy();
-    process.exit(0);
-});
-
-// Login to Discord with your app's token
-client.login(process.env.DISCORD_TOKEN);
-
-// Utility function to create thread data object
-const createThreadData = (thread, eventType, author = null, changes = null) => {
-    const threadOwner = author || thread.owner;
-    return {
-        content: {
-            text: eventType === 'thread_member_join' ? `${author?.tag} joined the thread` :
-                  eventType === 'thread_member_leave' ? `${author?.tag} left the thread` :
-                  thread.name,
-            type: eventType
-        },
-        author: {
-            id: threadOwner?.id || thread.ownerId,
-            username: threadOwner?.username || 'Unknown',
-            discriminator: threadOwner?.discriminator || '0000'
-        },
-        channel: {
-            id: thread.parentId,
-            name: thread.parent?.name || 'Unknown',
-            type: thread.parent?.type || 'text'
-        },
-        guild: thread.guild ? {
-            id: thread.guild.id,
-            name: thread.guild.name
-        } : null,
-        message_id: thread.id,
-        original_message: thread,
-        timestamp: Date.now(),
-        thread: {
-            id: thread.id,
-            name: thread.name,
-            type: thread.type,
-            archived: thread.archived,
-            auto_archive_duration: thread.autoArchiveDuration,
-            locked: thread.locked,
-            parent_id: thread.parentId,
-            rate_limit_per_user: thread.rateLimitPerUser
-        },
-        ...(changes && { changes })
-    };
-};
-
-// Thread Creation Handler
+// Thread event handlers
 client.on('threadCreate', async (thread) => {
-    console.log('Thread created:', thread.name);
     try {
-        const threadData = createThreadData(thread, 'thread_create');
+        const threadData = createEventData(thread, 'thread_create', { isThreadEvent: true });
         await sendToN8n(threadData, 'thread_create');
     } catch (error) {
         console.error('Error processing thread creation:', error);
     }
 });
 
-// Thread Deletion Handler
 client.on('threadDelete', async (thread) => {
-    console.log('Thread deleted:', thread.name);
     try {
-        const threadData = createThreadData(thread, 'thread_delete');
+        const threadData = createEventData(thread, 'thread_delete', { isThreadEvent: true });
         await sendToN8n(threadData, 'thread_delete');
     } catch (error) {
         console.error('Error processing thread deletion:', error);
     }
 });
 
-// Thread Update Handler
 client.on('threadUpdate', async (oldThread, newThread) => {
-    console.log('Thread updated:', newThread.name);
     try {
         const changes = {
             name: oldThread.name !== newThread.name ? {
@@ -328,31 +287,55 @@ client.on('threadUpdate', async (oldThread, newThread) => {
             } : null
         };
 
-        const threadData = createThreadData(newThread, 'thread_update', null, changes);
+        const threadData = createEventData(newThread, 'thread_update', { 
+            isThreadEvent: true,
+            changes 
+        });
         await sendToN8n(threadData, 'thread_update');
     } catch (error) {
         console.error('Error processing thread update:', error);
     }
 });
 
-// Thread Member Join Handler
 client.on('threadMemberAdd', async (member) => {
-    console.log('User joined thread:', member.thread.name);
     try {
-        const threadData = createThreadData(member.thread, 'thread_member_join', member.user);
+        const threadData = createEventData(member.thread, 'thread_member_join', { 
+            isThreadEvent: true,
+            author: member.user 
+        });
         await sendToN8n(threadData, 'thread_member_join');
     } catch (error) {
         console.error('Error processing thread member join:', error);
     }
 });
 
-// Thread Member Leave Handler
 client.on('threadMemberRemove', async (member) => {
-    console.log('User left thread:', member.thread.name);
     try {
-        const threadData = createThreadData(member.thread, 'thread_member_leave', member.user);
+        const threadData = createEventData(member.thread, 'thread_member_leave', { 
+            isThreadEvent: true,
+            author: member.user 
+        });
         await sendToN8n(threadData, 'thread_member_leave');
     } catch (error) {
         console.error('Error processing thread member leave:', error);
     }
-}); 
+});
+
+// Reaction event listeners
+client.on('messageReactionAdd', (reaction, user) => handleReaction(reaction, user, 'reaction_add'));
+client.on('messageReactionRemove', (reaction, user) => handleReaction(reaction, user, 'reaction_remove'));
+
+// Handle errors
+client.on('error', (error) => {
+    console.error('Discord client error:', error);
+});
+
+// Handle process termination
+process.on('SIGINT', () => {
+    console.log('Shutting down...');
+    client.destroy();
+    process.exit(0);
+});
+
+// Login to Discord with your app's token
+client.login(process.env.DISCORD_TOKEN); 
