@@ -149,10 +149,10 @@ const createEventData = (event, eventType, options = {}) => {
     // Base data structure
     const data = {
         content: {
-            text: isReaction ? event.emoji.toString() : 
-                  isThreadEvent ? (eventType.includes('member') ? 
-                    `${eventAuthor.tag} ${eventType.includes('join') ? 'joined' : 'left'} the thread` : 
-                    event.name) : 
+            text: isReaction ? event.emoji.toString() :
+                  isThreadEvent ? (eventType.includes('member') ?
+                    `${eventAuthor.tag} ${eventType.includes('join') ? 'joined' : 'left'} the thread` :
+                    event.name) :
                   message.content,
             type: eventType
         },
@@ -247,10 +247,10 @@ const handleReaction = async (reaction, user, eventType) => {
     try {
         const isThread = reaction.message.channel.isThread();
         const fullEventType = isThread ? `thread_${eventType}` : eventType;
-        const reactionData = createEventData(reaction, fullEventType, { 
-            isThread, 
+        const reactionData = createEventData(reaction, fullEventType, {
+            isThread,
             isReaction: true,
-            author: user 
+            author: user
         });
         await sendToN8n(reactionData, fullEventType);
     } catch (error) {
@@ -302,9 +302,9 @@ client.on('threadUpdate', async (oldThread, newThread) => {
             } : null
         };
 
-        const threadData = createEventData(newThread, 'thread_update', { 
+        const threadData = createEventData(newThread, 'thread_update', {
             isThreadEvent: true,
-            changes 
+            changes
         });
         await sendToN8n(threadData, 'thread_update');
     } catch (error) {
@@ -314,9 +314,9 @@ client.on('threadUpdate', async (oldThread, newThread) => {
 
 client.on('threadMemberAdd', async (member) => {
     try {
-        const threadData = createEventData(member.thread, 'thread_member_join', { 
+        const threadData = createEventData(member.thread, 'thread_member_join', {
             isThreadEvent: true,
-            author: member.user 
+            author: member.user
         });
         await sendToN8n(threadData, 'thread_member_join');
     } catch (error) {
@@ -326,9 +326,9 @@ client.on('threadMemberAdd', async (member) => {
 
 client.on('threadMemberRemove', async (member) => {
     try {
-        const threadData = createEventData(member.thread, 'thread_member_leave', { 
+        const threadData = createEventData(member.thread, 'thread_member_leave', {
             isThreadEvent: true,
-            author: member.user 
+            author: member.user
         });
         await sendToN8n(threadData, 'thread_member_leave');
     } catch (error) {
@@ -364,11 +364,11 @@ const scrapeCommand = {
             option.setName('url')
                 .setDescription('The URL to scrape data from')
                 .setRequired(true)),
-                
+
     async execute(interaction) {
         try {
             const url = interaction.options.getString('url');
-            
+
             // Validate URL
             if (!url.match(/^https?:\/\/.+/)) {
                 await interaction.reply({
@@ -380,30 +380,24 @@ const scrapeCommand = {
 
             await interaction.deferReply();
 
-            // Use axios to fetch the webpage
-            const response = await axios.get(url);
-            
-            // Create a payload for n8n
+            // Create a payload for n8n with just the URL
             const scrapeData = {
                 url: url,
-                content: response.data,
                 timestamp: Date.now()
             };
 
-            // Send to n8n webhook
+            // Send to n8n webhook for processing
             await sendToN8n(scrapeData, 'scrape_command');
 
             await interaction.editReply({
-                content: `Successfully scraped data from ${url} and forwarded to n8n!`,
+                content: `Successfully sent URL to n8n for processing: ${url}`,
                 ephemeral: true
             });
 
         } catch (error) {
             console.error('Error in scrape command:', error);
-            const errorMessage = error.response?.status === 403 ? 
-                'Access to this URL is forbidden.' : 
-                'An error occurred while trying to scrape the URL.';
-                
+            const errorMessage = 'An error occurred while sending the URL to n8n.';
+
             if (!interaction.deferred) {
                 await interaction.reply({
                     content: errorMessage,
@@ -449,4 +443,4 @@ client.on('interactionCreate', async interaction => {
 });
 
 // Login to Discord with your app's token
-client.login(process.env.DISCORD_TOKEN); 
+client.login(process.env.DISCORD_TOKEN);

@@ -33,11 +33,11 @@ const scrapeCommand = {
             option.setName('url')
                 .setDescription('The URL to scrape data from')
                 .setRequired(true)),
-                
+
     async execute(interaction) {
         try {
             const url = interaction.options.getString('url');
-            
+
             // Validate URL
             if (!url.match(/^https?:\/\/.+/)) {
                 await interaction.reply({
@@ -49,30 +49,24 @@ const scrapeCommand = {
 
             await interaction.deferReply();
 
-            // Use axios to fetch the webpage
-            const response = await axios.get(url);
-            
-            // Create a payload for n8n
+            // Create a payload for n8n with just the URL
             const scrapeData = {
                 url: url,
-                content: response.data,
                 timestamp: Date.now()
             };
 
-            // Send to n8n webhook
+            // Send to n8n webhook for processing
             await sendToN8n(scrapeData, 'scrape_command');
 
             await interaction.editReply({
-                content: `Successfully scraped data from ${url} and forwarded to n8n!`,
+                content: `Successfully sent URL to n8n for processing: ${url}`,
                 ephemeral: true
             });
 
         } catch (error) {
             console.error('Error in scrape command:', error);
-            const errorMessage = error.response?.status === 403 ? 
-                'Access to this URL is forbidden.' : 
-                'An error occurred while trying to scrape the URL.';
-                
+            const errorMessage = 'An error occurred while sending the URL to n8n.';
+
             if (!interaction.deferred) {
                 await interaction.reply({
                     content: errorMessage,
