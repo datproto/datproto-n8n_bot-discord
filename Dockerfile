@@ -16,5 +16,7 @@ RUN ls -la && \
     echo "Current directory: $(pwd)" && \
     if [ ! -f "index.js" ]; then echo "ERROR: index.js not found!"; exit 1; fi
 
-# Run the bot
-CMD ["node", "index.js"]
+# Use a shell script to run deploy-commands first, then start the bot
+COPY start.sh .
+RUN chmod +x start.sh
+CMD ["./start.sh"]
