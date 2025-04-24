@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, Partials } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, SlashCommandBuilder } = require('discord.js');
 const axios = require('axios');
 
 // Create a new client instance
@@ -350,6 +350,102 @@ process.on('SIGINT', () => {
     console.log('Shutting down...');
     client.destroy();
     process.exit(0);
+});
+
+// Add the commands collection to your client
+client.commands = new Map();
+
+// Create the scrape command
+const scrapeCommand = {
+    data: new SlashCommandBuilder()
+        .setName('scrape')
+        .setDescription('Scrape data from a provided URL')
+        .addStringOption(option =>
+            option.setName('url')
+                .setDescription('The URL to scrape data from')
+                .setRequired(true)),
+                
+    async execute(interaction) {
+        try {
+            const url = interaction.options.getString('url');
+            
+            // Validate URL
+            if (!url.match(/^https?:\/\/.+/)) {
+                await interaction.reply({
+                    content: 'Please provide a valid URL starting with http:// or https://',
+                    ephemeral: true
+                });
+                return;
+            }
+
+            await interaction.deferReply();
+
+            // Use axios to fetch the webpage
+            const response = await axios.get(url);
+            
+            // Create a payload for n8n
+            const scrapeData = {
+                url: url,
+                content: response.data,
+                timestamp: Date.now()
+            };
+
+            // Send to n8n webhook
+            await sendToN8n(scrapeData, 'scrape_command');
+
+            await interaction.editReply({
+                content: `Successfully scraped data from ${url} and forwarded to n8n!`,
+                ephemeral: true
+            });
+
+        } catch (error) {
+            console.error('Error in scrape command:', error);
+            const errorMessage = error.response?.status === 403 ? 
+                'Access to this URL is forbidden.' : 
+                'An error occurred while trying to scrape the URL.';
+                
+            if (!interaction.deferred) {
+                await interaction.reply({
+                    content: errorMessage,
+                    ephemeral: true
+                });
+            } else {
+                await interaction.editReply({
+                    content: errorMessage,
+                    ephemeral: true
+                });
+            }
+        }
+    }
+};
+
+// Register the command
+client.commands.set(scrapeCommand.data.name, scrapeCommand);
+
+// Add command handling to your existing client.on('interactionCreate') or create it if it doesn't exist
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return;
+
+    const command = client.commands.get(interaction.commandName);
+    if (!command) return;
+
+    try {
+        await command.execute(interaction);
+    } catch (error) {
+        console.error(error);
+        const errorMessage = 'There was an error while executing this command!';
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({
+                content: errorMessage,
+                ephemeral: true
+            });
+        } else {
+            await interaction.followUp({
+                content: errorMessage,
+                ephemeral: true
+            });
+        }
+    }
 });
 
 // Login to Discord with your app's token
