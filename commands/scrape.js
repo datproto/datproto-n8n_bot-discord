@@ -32,11 +32,16 @@ const scrapeCommand = {
         .addStringOption(option =>
             option.setName('url')
                 .setDescription('The URL to scrape data from')
-                .setRequired(true)),
+                .setRequired(true))
+        .addStringOption(option =>
+            option.setName('extraction_request')
+                .setDescription('Specify what data you want to extract from the website')
+                .setRequired(false)),
 
     async execute(interaction) {
         try {
             const url = interaction.options.getString('url');
+            const extractionRequest = interaction.options.getString('extraction_request');
 
             // Validate URL
             if (!url.match(/^https?:\/\/.+/)) {
@@ -49,17 +54,24 @@ const scrapeCommand = {
 
             await interaction.deferReply();
 
-            // Create a payload for n8n with just the URL
+            // Create a payload for n8n with the URL and extraction request
             const scrapeData = {
                 url: url,
+                extraction_request: extractionRequest || "Extract all relevant information",
                 timestamp: Date.now()
             };
 
             // Send to n8n webhook for processing
             await sendToN8n(scrapeData, 'scrape_command');
 
+            // Create a more informative success message
+            let successMessage = `Successfully sent URL to n8n for processing: ${url}`;
+            if (extractionRequest) {
+                successMessage += `\nExtraction request: "${extractionRequest}"`;
+            }
+
             await interaction.editReply({
-                content: `Successfully sent URL to n8n for processing: ${url}`,
+                content: successMessage,
                 ephemeral: true
             });
 
