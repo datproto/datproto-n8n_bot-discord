@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, Partials, SlashCommandBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const axios = require('axios');
 
 // Create a new client instance
@@ -150,10 +150,10 @@ const createEventData = (event, eventType, options = {}) => {
     const data = {
         content: {
             text: isReaction ? event.emoji.toString() :
-                  isThreadEvent ? (eventType.includes('member') ?
+                isThreadEvent ? (eventType.includes('member') ?
                     `${eventAuthor.tag} ${eventType.includes('join') ? 'joined' : 'left'} the thread` :
                     event.name) :
-                  message.content,
+                    message.content,
             type: eventType
         },
         author: {
@@ -355,75 +355,8 @@ process.on('SIGINT', () => {
 // Add the commands collection to your client
 client.commands = new Map();
 
-// Create the scrape command
-const scrapeCommand = {
-    data: new SlashCommandBuilder()
-        .setName('scrape')
-        .setDescription('Scrape data from a provided URL')
-        .addStringOption(option =>
-            option.setName('url')
-                .setDescription('The URL to scrape data from')
-                .setRequired(true))
-        .addStringOption(option =>
-            option.setName('extraction_request')
-                .setDescription('Specify what data you want to extract from the website')
-                .setRequired(false)),
-
-    async execute(interaction) {
-        try {
-            const url = interaction.options.getString('url');
-            const extractionRequest = interaction.options.getString('extraction_request');
-
-            // Validate URL
-            if (!url.match(/^https?:\/\/.+/)) {
-                await interaction.reply({
-                    content: 'Please provide a valid URL starting with http:// or https://',
-                    ephemeral: true
-                });
-                return;
-            }
-
-            await interaction.deferReply();
-
-            // Create a payload for n8n with the URL and extraction request
-            const scrapeData = {
-                url: url,
-                extraction_request: extractionRequest || "Extract all relevant information",
-                timestamp: Date.now()
-            };
-
-            // Send to n8n webhook for processing
-            await sendToN8n(scrapeData, 'scrape_command');
-
-            // Create a more informative success message
-            let successMessage = `Successfully sent URL to n8n for processing: ${url}`;
-            if (extractionRequest) {
-                successMessage += `\nExtraction request: "${extractionRequest}"`;
-            }
-
-            await interaction.editReply({
-                content: successMessage,
-                ephemeral: true
-            });
-
-        } catch (error) {
-            console.error('Error in scrape command:', error);
-            const errorMessage = 'An error occurred while sending the URL to n8n.';
-
-            if (!interaction.deferred) {
-                await interaction.reply({
-                    content: errorMessage,
-                    ephemeral: true
-                });
-            } else {
-                await interaction.editReply({
-                    content: errorMessage,
-                    ephemeral: true
-                });
-            }
-        }
-    }
-};
+// Import the scrape command from the commands directory
+const { scrapeCommand } = require('./commands/scrape');
 
 // Register the command
 client.commands.set(scrapeCommand.data.name, scrapeCommand);
