@@ -1,0 +1,103 @@
+<context>
+# Overview  
+A Discord bot that serves as a bridge between Discord slash commands and N8N automation workflows. The bot allows users to trigger various N8N workflows through Discord commands, enabling seamless integration between Discord communities and automated processes. The current implementation supports web scraping through a single N8N endpoint, but needs to be upgraded to support multiple N8N endpoints for different types of automation workflows.
+
+# Core Features  
+- **Multi-Endpoint Command Routing**: Route different Discord commands to specific N8N webhook endpoints based on command type and configuration
+- **Web Scraping Command**: Existing /scrape command that extracts data from URLs with customizable extraction requests and output schemas  
+- **Configurable Endpoint Management**: Dynamic configuration system for managing multiple N8N endpoints with different timeout and retry settings
+- **Error Handling and Logging**: Comprehensive error handling with detailed logging for debugging and monitoring
+- **Environment Configuration**: Support for different environments (dev, staging, production) with separate N8N endpoint configurations
+- **Command Registration**: Automatic Discord slash command registration and deployment system
+
+# User Experience  
+- **Discord Users**: Community members who want to trigger automation workflows without leaving Discord
+- **Administrators**: Bot operators who need to configure and manage N8N endpoint mappings
+- **Developers**: Engineers who want to add new commands and integrate with additional N8N workflows
+
+Key user flows:
+- User types slash command in Discord with parameters
+- Bot validates input and routes to appropriate N8N endpoint
+- Bot provides immediate feedback and status updates
+- N8N processes the request and potentially sends results back
+
+UI/UX considerations:
+- Clear command descriptions and parameter help
+- Immediate feedback for successful submissions
+- Helpful error messages for invalid inputs
+- Ephemeral responses to keep channels clean
+</context>
+<PRD>
+# Technical Architecture  
+- **Node.js Backend**: Discord.js library for Discord API integration
+- **Command System**: Modular command structure with individual files per command type
+- **Configuration Layer**: JSON/Environment-based configuration for endpoint mappings
+- **Service Layer**: Centralized N8N routing service with webhook management
+- **Error Handling**: Comprehensive try-catch blocks with logging and user feedback
+- **Docker Support**: Containerized deployment with Docker Compose
+- **Environment Management**: .env file configuration with sample templates
+
+System components:
+- Main bot application (index.js)
+- Command modules (commands/ directory)
+- Configuration management (config/ directory)
+- N8N routing services (services/ directory)
+- Deployment and infrastructure (Docker, scripts)
+
+# Development Roadmap  
+
+## Phase 1: Foundation Refactoring (MVP)
+- Split existing scrape.js into smaller, modular components following 250-line limit
+- Create centralized N8N routing service
+- Implement configuration-based endpoint mapping
+- Add comprehensive error handling and logging
+- Update existing scrape command to use new architecture
+
+## Phase 2: Multi-Endpoint Support
+- Create endpoint configuration system
+- Implement command-to-endpoint mapping
+- Add support for multiple N8N webhook URLs
+- Create environment-specific configurations
+- Add endpoint health checking and failover
+
+## Phase 3: Enhanced Commands
+- Add new command types (analyze, monitor, notify)
+- Implement command-specific data transformations
+- Add rate limiting and queue management
+- Create admin commands for endpoint management
+- Add usage analytics and monitoring
+
+## Phase 4: Production Readiness
+- Implement comprehensive testing suite
+- Add performance monitoring and metrics
+- Create deployment automation
+- Add backup and recovery mechanisms
+- Implement security hardening
+
+# Logical Dependency Chain
+1. **File Structure Optimization**: Split large files first to meet 250-line requirements
+2. **Service Layer Creation**: Build N8N routing service as foundation for all commands
+3. **Configuration System**: Implement endpoint mapping before adding new commands
+4. **Command Migration**: Update existing scrape command to use new architecture
+5. **New Command Addition**: Add additional commands once foundation is solid
+6. **Monitoring and Admin**: Add operational features after core functionality is stable
+7. **Testing and Documentation**: Comprehensive testing once all features are implemented
+
+# Risks and Mitigations  
+- **File Size Compliance**: Risk of files exceeding 250-line limit during development
+  - Mitigation: Proactive file splitting and continuous monitoring
+- **N8N Endpoint Reliability**: Risk of N8N webhooks being unavailable
+  - Mitigation: Implement retry logic, health checks, and failover mechanisms
+- **Configuration Complexity**: Risk of complex endpoint configurations being error-prone
+  - Mitigation: Configuration validation and clear documentation
+- **Discord API Rate Limits**: Risk of hitting Discord API limits with increased usage
+  - Mitigation: Implement rate limiting and queue management
+- **Breaking Changes**: Risk of breaking existing functionality during refactoring
+  - Mitigation: Incremental changes with comprehensive testing
+
+# Appendix  
+- Current tech stack: Node.js, Discord.js, Axios, Docker
+- Existing N8N integration through single webhook endpoint
+- Deployment via Docker Compose with environment configuration
+- Current command structure supports slash commands with string options
+</PRD>
