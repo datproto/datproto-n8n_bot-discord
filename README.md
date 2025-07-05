@@ -1,205 +1,111 @@
 # Discord to n8n Message Forwarder Bot
 
-> A powerful Discord bot that seamlessly integrates with n8n workflows. Automatically forwards Discord messages to n8n webhooks with detailed content type detection, perfect for automation and workflow triggers.
+> A powerful Discord bot that seamlessly integrates with n8n workflows. Automatically forwards Discord messages to n8n webhooks with detailed content type detection.
 
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com)
 [![n8n](https://img.shields.io/badge/n8n-00E833?style=for-the-badge&logo=n8n&logoColor=white)](https://n8n.io)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
-[![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://railway.app)
 
 ## 🔍 Overview
 
-This Discord bot is designed to bridge Discord and n8n, enabling powerful automation workflows. It listens for messages in Discord channels and forwards them to n8n webhooks with detailed content analysis, making it perfect for:
+This Discord bot bridges Discord and n8n, enabling powerful automation workflows. It listens for Discord messages and forwards them to n8n webhooks with detailed content analysis.
 
-- Discord message triggers for n8n workflows
-- Automated content moderation
-- Message archiving and logging
-- Custom Discord integrations
-- Workflow automation based on Discord activity
+**Perfect for**: Discord message triggers, automated content moderation, message archiving, and workflow automation.
 
-## 🚀 Key Features
+## 🚀 Quick Start
 
-- **Smart Content Detection**: Automatically identifies message types (text, stickers, images, videos, etc.)
-- **Rich Message Data**: Forwards comprehensive message information to n8n
-- **Easy Integration**: Simple setup with environment variables
-- **Secure**: Built-in security features and proper error handling
-- **Reliable**: Graceful shutdown and error recovery
-- **Easy Deployment**: One-click deployment to Railway
+### Prerequisites
+- Node.js 16+
+- Discord Application & Bot Token
+- n8n Webhook URL
 
-## 📋 Table of Contents
+### Installation
+```bash
+# Clone and install
+git clone <repository-url>
+cd datproto-n8n_bot-discord
+npm install
 
-- [Setup](#setup)
-- [Features](#features)
-- [Security](#security)
-- [Required Permissions](#required-discord-bot-permissions)
-- [Webhook Format](#n8n-webhook-format)
-- [Content Types](#content-types)
-- [Deployment](#deployment)
+# Configure environment
+cp .env.sample .env
+# Edit .env with your tokens
 
-## Setup
-
-1. Create a Discord application and bot:
-   - Go to the [Discord Developer Portal](https://discord.com/developers/applications)
-   - Create a new application
-   - Go to the "Bot" section and create a bot
-   - Copy the bot token and client ID
-
-2. Configure the bot:
-   - Copy the `.env` file and rename it to `.env`
-   - Fill in the following values:
-     - `DISCORD_TOKEN`: Your Discord bot token
-     - `DISCORD_CLIENT_ID`: Your Discord client ID
-     - `N8N_WEBHOOK_URL`: Your n8n webhook URL
-
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-4. Start the bot:
-   ```bash
-   node index.js
-   ```
-
-## Features
-
-- Listens for messages in all channels the bot has access to
-- Forwards messages to n8n webhook with detailed information including:
-  - Message content and type
-  - Author information
-  - Channel information
-  - Guild (server) information
-  - Timestamp
-  - Message ID
-  - Original message object
-
-## Security
-
-- Uses environment variables for sensitive information
-- Implements proper error handling
-- Graceful shutdown on process termination
-- Ignores messages from other bots
-
-## Required Discord Bot Permissions
-
-- Read Messages/View Channels
-- Send Messages
-- Read Message History
-
-## n8n Webhook Format
-
-The bot sends messages to n8n in the following format:
-
-```json
-{
-  "content": {
-    "text": "message content",
-    "type": "content_type"
-  },
-  "author": {
-    "id": "user id",
-    "username": "username",
-    "discriminator": "discriminator"
-  },
-  "channel": {
-    "id": "channel id",
-    "name": "channel name",
-    "type": "channel type"
-  },
-  "guild": {
-    "id": "guild id",
-    "name": "guild name"
-  },
-  "message_id": "message id",
-  "original_message": "full Discord message object",
-  "timestamp": 1234567890
-}
+# Deploy commands and start
+npm run deploy-commands
+npm start
 ```
 
-### Content Types
+## 🏗️ Architecture
 
-The bot classifies messages into the following content types:
+**Modular Design** with **250-line file limit** for maintainability:
 
-- `text` - Regular text messages
-- `sticker` - Messages containing stickers
-- `image` - Messages with image attachments
-- `video` - Messages with video attachments
-- `audio` - Messages with audio attachments
-- `file` - Messages with other file types
-- `embed` - Messages containing embeds
-- `poll` - Messages containing polls
-- `reply` - Messages that are replies to other messages
-- `bot_mention` - Messages that mention the bot
-- `link` - Messages containing URLs
-- `empty` - Messages with no content (may contain attachments or other elements)
+```
+├── index.js                    # Application entry (69 lines)
+├── lib/                        # Core modules
+│   ├── formatters.js           # Data formatting (96 lines)
+│   ├── n8n-service.js          # N8N communication (38 lines)
+│   ├── event-data.js           # Event structures (108 lines)
+│   ├── commands.js             # Command system (63 lines)
+│   └── event-handlers/         # Event processing
+├── commands/                   # Slash commands
+├── scripts/                    # Development tools
+└── .taskmaster/               # Project management
+```
 
-## 🚂 Deployment
+## 🔧 Key Features
 
-### Railway Deployment
+- **Smart Content Detection**: Identifies message types (text, stickers, images, videos, etc.)
+- **Rich Message Data**: Comprehensive Discord information forwarded to n8n
+- **Modular Architecture**: Easy to maintain, test, and extend
+- **File Size Monitoring**: Automated enforcement of 250-line limit
+- **Secure & Reliable**: Error handling and graceful shutdown
 
-This bot can be easily deployed to Railway with just a few clicks:
+## 📋 Available Scripts
 
-1. **Get Started with Railway**
-   - Sign up for Railway using my referral code `jay` or [referral link](https://railway.com?referralCode=jay) to get $5 in free credits
-   - This helps support the project and gives you free hosting credits
+```bash
+npm start                    # Start the bot
+npm run deploy-commands      # Register Discord slash commands  
+npm run check-file-sizes     # Monitor file size compliance
+npm run check-file-sizes-strict  # Strict compliance check
+```
 
-2. **Prepare your repository**
-   - Fork this repository
-   - Make sure your `.env` file is properly configured
+## 📚 Documentation
 
-3. **Deploy to Railway**
-   - Go to [Railway](https://railway.com?referralCode=jay)
-   - Click "New Project"
-   - Select "Deploy from GitHub repo"
-   - Choose your forked repository
-   - Railway will automatically detect it's a Node.js project
+- **[Setup Guide](docs/setup.md)** - Detailed installation and configuration
+- **[Architecture Guide](docs/architecture.md)** - Technical design details
+- **[API Reference](docs/api-reference.md)** - Webhook formats and content types
+- **[Development Guide](docs/development.md)** - Contributing and best practices
+- **[Deployment Guide](docs/deployment.md)** - Production deployment options
 
-4. **Configure Environment Variables**
-   - In your Railway project dashboard, go to "Variables"
-   - Add the following environment variables:
-     ```
-     DISCORD_TOKEN=your_discord_bot_token
-     DISCORD_CLIENT_ID=your_discord_client_id
-     N8N_WEBHOOK_URL=your_n8n_webhook_url
-     ```
+## 🛡️ File Size Compliance
 
-5. **Start the Deployment**
-   - Railway will automatically build and deploy your bot
-   - You can monitor the deployment in the "Deployments" tab
-   - Check the logs to ensure everything is running correctly
+This project enforces a **250-line maximum** for all files:
 
-6. **Verify the Deployment**
-   - Once deployed, your bot should automatically connect to Discord
-   - Test by sending a message in your Discord server
-   - Check the Railway logs to confirm the bot is receiving and forwarding messages
+```bash
+# Check compliance
+npm run check-file-sizes
 
-### Railway Credits and Referral Program
+# All files currently comply ✅
+Total Files: 22 | Violations: 0 | Warnings: 0 | Compliant: 22
+```
 
-- Get $5 in free credits when you sign up using our [referral link](https://railway.com?referralCode=jay)
-- Referral code: `3cq6l2`
-- Credits are applied once you pay your first bill or purchase credits
-- This helps support the project and gives you free hosting for your bot
+## 🤝 Contributing
 
-### Railway Configuration Tips
+1. Fork the repository
+2. Create a feature branch
+3. Ensure file size compliance: `npm run check-file-sizes-strict`
+4. Submit a pull request
 
-- **Scaling**: Railway automatically scales your bot based on demand
-- **Monitoring**: Use Railway's built-in monitoring to track your bot's performance
-- **Logs**: Access real-time logs in the Railway dashboard
-- **Updates**: Railway automatically redeploys when you push changes to your repository
+## 📄 License
 
-### Alternative Deployment Methods
+MIT License - see [LICENSE](LICENSE) file for details.
 
-If you prefer not to use Railway, you can also deploy this bot to:
-- Heroku
-- DigitalOcean
-- AWS
-- Any other Node.js hosting platform
+## 🔗 Links
 
-The deployment process is similar - just make sure to:
-1. Set up the environment variables
-2. Install dependencies
-3. Start the bot with `node index.js`
+- [Discord Developer Portal](https://discord.com/developers/applications)
+- [n8n Documentation](https://docs.n8n.io/)
+- [Project Documentation](docs/)
 
-## 🔑 Keywords
+---
 
-discord bot, n8n integration, discord automation, n8n webhook, discord triggers, workflow automation, discord message forwarder, n8n discord integration, discord bot development, n8n automation, discord webhook, n8n workflow triggers, discord message types, content detection, discord bot integration, n8n connector, discord automation bot, n8n discord bot, discord message forwarding, n8n webhook integration, railway deployment, deploy discord bot, railway hosting, node.js deployment 
+**Need help?** Check the [docs](docs/) or open an issue!
