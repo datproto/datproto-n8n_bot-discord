@@ -1,0 +1,94 @@
+{
+  "endpoints": {
+    "scrape": {
+      "url": "https://your-n8n-instance.com/webhook/scrape",
+      "timeout": 30000,
+      "retries": 3,
+      "priority": 1,
+      "enabled": true
+    },
+    "analyze": {
+      "url": "https://your-n8n-instance.com/webhook/analyze",
+      "timeout": 45000,
+      "retries": 2,
+      "priority": 2,
+      "enabled": true
+    },
+    "monitor": {
+      "url": "https://your-n8n-instance.com/webhook/monitor",
+      "timeout": 60000,
+      "retries": 2,
+      "priority": 3,
+      "enabled": true
+    },
+    "notify": {
+      "url": "https://your-n8n-instance.com/webhook/notify",
+      "timeout": 15000,
+      "retries": 1,
+      "priority": 1,
+      "enabled": true
+    }
+  },
+  "environments": {
+    "development": {
+      "overrides": {
+        "endpoints": {
+          "scrape": {
+            "url": "http://localhost:5678/webhook/scrape"
+          },
+          "analyze": {
+            "url": "http://localhost:5678/webhook/analyze"
+          },
+          "monitor": {
+            "url": "http://localhost:5678/webhook/monitor"
+          },
+          "notify": {
+            "url": "http://localhost:5678/webhook/notify"
+          }
+        }
+      },
+      "logLevel": "debug",
+      "healthCheckInterval": 30000
+    },
+    "staging": {
+      "overrides": {
+        "endpoints": {
+          "scrape": {
+            "url": "https://staging-n8n.your-domain.com/webhook/scrape"
+          },
+          "analyze": {
+            "url": "https://staging-n8n.your-domain.com/webhook/analyze"
+          },
+          "monitor": {
+            "url": "https://staging-n8n.your-domain.com/webhook/monitor"
+          },
+          "notify": {
+            "url": "https://staging-n8n.your-domain.com/webhook/notify"
+          }
+        }
+      },
+      "logLevel": "info",
+      "healthCheckInterval": 60000
+    },
+    "production": {
+      "overrides": {},
+      "logLevel": "warn",
+      "healthCheckInterval": 120000
+    }
+  },
+  "global": {
+    "rateLimiting": {
+      "perUser": 10,
+      "global": 100,
+      "windowMs": 60000
+    },
+    "queue": {
+      "maxSize": 1000,
+      "concurrency": 5
+    },
+    "monitoring": {
+      "enabled": true,
+      "metricsRetention": 86400000
+    }
+  }
+}

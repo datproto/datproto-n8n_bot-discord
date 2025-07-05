@@ -1,16 +1,17 @@
 {
-  "timestamp": "2025-07-05T20:13:45.420Z",
+  "timestamp": "2025-07-05T20:51:40.484Z",
   "maxLines": 250,
   "triggerThreshold": 240,
   "violations": [],
-  "warnings": [],
-  "compliant": [
+  "warnings": [
     {
-      "path": ".taskmaster/tasks/tasks.json",
-      "lines": 219,
-      "overLimit": -31,
-      "nearLimit": 31
-    },
+      "path": "config/environment.js",
+      "lines": 249,
+      "overLimit": -1,
+      "nearLimit": 1
+    }
+  ],
+  "compliant": [
     {
       "path": "scripts/file-size-monitor.js",
       "lines": 212,
@@ -18,10 +19,28 @@
       "nearLimit": 38
     },
     {
+      "path": "config/validator.js",
+      "lines": 198,
+      "overLimit": -52,
+      "nearLimit": 52
+    },
+    {
+      "path": "config/schema.js",
+      "lines": 186,
+      "overLimit": -64,
+      "nearLimit": 64
+    },
+    {
       "path": "docs/architecture.md",
       "lines": 154,
       "overLimit": -96,
       "nearLimit": 96
+    },
+    {
+      "path": "config/schema-design.md",
+      "lines": 138,
+      "overLimit": -112,
+      "nearLimit": 112
     },
     {
       "path": "docs/file-size-monitoring.md",
@@ -78,6 +97,18 @@
       "nearLimit": 153
     },
     {
+      "path": "config/endpoints.json",
+      "lines": 95,
+      "overLimit": -155,
+      "nearLimit": 155
+    },
+    {
+      "path": "config/env-loader.js",
+      "lines": 86,
+      "overLimit": -164,
+      "nearLimit": 164
+    },
+    {
       "path": "index.js",
       "lines": 70,
       "overLimit": -180,
@@ -120,13 +151,13 @@
       "nearLimit": 213
     },
     {
-      "path": "deploy-commands.js",
-      "lines": 24,
-      "overLimit": -226,
-      "nearLimit": 226
+      "path": "package.json",
+      "lines": 25,
+      "overLimit": -225,
+      "nearLimit": 225
     },
     {
-      "path": "package.json",
+      "path": "deploy-commands.js",
       "lines": 24,
       "overLimit": -226,
       "nearLimit": 226
@@ -145,9 +176,9 @@
     }
   ],
   "summary": {
-    "totalFiles": 23,
+    "totalFiles": 28,
     "violationCount": 0,
-    "warningCount": 0,
-    "compliantCount": 23
+    "warningCount": 1,
+    "compliantCount": 27
   }
 }

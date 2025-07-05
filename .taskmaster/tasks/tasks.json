@@ -76,8 +76,89 @@
         "dependencies": [
           1
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Configuration Schema",
+            "description": "Define a flexible and scalable schema for configuration data, supporting environment-specific overrides and validation requirements.",
+            "dependencies": [],
+            "details": "Determine the structure for configuration files, including required fields, data types, and environment-specific sections. Consider using JSON or JS objects and plan for future extensibility.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement endpoints.json",
+            "description": "Create the endpoints.json file to store endpoint configurations as per the designed schema.",
+            "dependencies": [
+              1
+            ],
+            "details": "Populate endpoints.json with sample data, ensuring it aligns with the schema and supports different environments if needed.\n<info added on 2025-07-05T20:35:34.025Z>\nCreated endpoints.json file with comprehensive configuration including 4 command endpoints (scrape, analyze, monitor, notify) with individual settings, environment-specific overrides for development (localhost), staging, and production environments, global configuration for rate limiting, queue management, and monitoring capabilities, with all configurations properly aligned with the Joi schema definitions from schema.js and structured for easy maintenance and environment-based deployments.\n</info added on 2025-07-05T20:35:34.025Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement environment.js",
+            "description": "Develop environment.js to load and expose environment-specific configuration, merging data from endpoints.json and other sources.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Write logic to read endpoints.json and select or merge configuration based on the current environment.\n<info added on 2025-07-05T20:37:15.010Z>\nCreated comprehensive environment.js module (199 lines) with EnvironmentManager class featuring environment-specific override merging using lodash, methods for retrieving endpoint configs and global/environment configurations, endpoint validation with enabled/disabled command filtering, hot-reloading capability via reloadConfiguration(), singleton pattern with exported convenience functions, complete error handling for missing configs and invalid environments, and support for all current and future command types.\n</info added on 2025-07-05T20:37:15.010Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Integrate dotenv for Environment Variables",
+            "description": "Set up dotenv to load environment variables from a .env file and make them available to the application.",
+            "dependencies": [
+              3
+            ],
+            "details": "Install dotenv, configure it to load variables at startup, and ensure environment.js can access these variables.\n<info added on 2025-07-05T20:42:31.126Z>\nSuccessfully integrated dotenv for environment variables with comprehensive implementation. Created .env.example file with configuration examples for all supported variables. Split functionality into env-loader.js (79 lines) for clean separation of concerns and updated environment.js (250 lines) to utilize dotenv with environment variable override capabilities. Added support for dynamic N8N_COMMANDNAME_URL and N8N_COMMANDNAME_TIMEOUT patterns. Environment variables now take precedence over JSON configuration values when present. Implemented validation for required DISCORD_TOKEN variable. Both files maintain compliance with 250-line limit while preserving full backward compatibility with existing configurations.\n</info added on 2025-07-05T20:42:31.126Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Add Joi Validation",
+            "description": "Integrate Joi to validate configuration and environment variables against the defined schema.",
+            "dependencies": [
+              1,
+              4
+            ],
+            "details": "Define Joi schemas for configuration and environment variables, and implement validation logic that throws errors on invalid input.\n<info added on 2025-07-05T20:51:26.137Z>\nSuccessfully implemented Joi validation system with comprehensive schema validation and error handling. Installed Joi ^17.13.3 and created validator.js (170 lines) containing validation functions for all configuration schema types. Integrated validation into environment.js using assertValidEnvironment() function that runs on startup and reload. System now provides detailed error reporting for invalid configurations and includes both safe validation methods (returning results) and assertion methods (throwing errors). Optimized environment.js from 260 to 249 lines to maintain compliance with 250-line file size limit. All 28 project files now comply with size restrictions as verified by file size monitor.\n</info added on 2025-07-05T20:51:26.137Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Implement Hot-Reloading",
+            "description": "Enable hot-reloading so configuration changes are detected and applied at runtime without restarting the application.",
+            "dependencies": [
+              3,
+              5
+            ],
+            "details": "Use file watchers or similar mechanisms to monitor configuration files and reload them when changes are detected, re-validating with Joi as needed.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Write Configuration Loading and Fallback Logic",
+            "description": "Implement logic to load configuration with support for fallbacks and error handling.",
+            "dependencies": [
+              3,
+              5,
+              6
+            ],
+            "details": "Ensure the system loads configuration in the correct order (e.g., environment variables, endpoints.json, defaults), applies validation, and provides sensible fallbacks if values are missing or invalid.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 3,
@@ -90,7 +171,94 @@
           2
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Service Skeleton and Setup",
+            "description": "Establish the foundational structure for the routing service, including project scaffolding, dependency installation, and basic configuration.",
+            "dependencies": [],
+            "details": "Set up the project directory, initialize package management (e.g., npm/yarn), and install required libraries such as Express, Axios, and any configuration tools. Define the entry point and basic server setup.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Command-to-Endpoint Routing Logic",
+            "description": "Implement logic to map incoming commands to their corresponding service endpoints.",
+            "dependencies": [
+              1
+            ],
+            "details": "Design a routing table or mapping function that translates command identifiers into specific backend service URLs or endpoints. Integrate this logic into the request handling flow.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "HTTP Request Handling with Axios",
+            "description": "Integrate Axios to handle outbound HTTP requests to backend services based on routing logic.",
+            "dependencies": [
+              2
+            ],
+            "details": "Configure Axios for making HTTP requests, including setting base URLs, headers, and request serialization. Ensure requests are dispatched according to the mapped endpoints.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Retry Logic with Exponential Backoff",
+            "description": "Implement retry logic for failed HTTP requests using exponential backoff to enhance resilience.",
+            "dependencies": [
+              3
+            ],
+            "details": "Utilize axios-retry or similar middleware to automatically retry failed requests with increasing delays between attempts, following an exponential backoff strategy.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Timeout and Error Handling",
+            "description": "Add robust timeout controls and error handling mechanisms for outbound requests.",
+            "dependencies": [
+              4
+            ],
+            "details": "Set request timeouts in Axios, handle different error scenarios (network errors, timeouts, HTTP errors), and ensure meaningful error responses are returned to clients.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Response Transformation",
+            "description": "Transform backend service responses into a standardized format for clients.",
+            "dependencies": [
+              5
+            ],
+            "details": "Implement logic to parse, validate, and reformat responses from backend services, ensuring consistency and clarity in the API output.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Circuit Breaker Integration",
+            "description": "Integrate a circuit breaker pattern to prevent cascading failures and improve system resilience.",
+            "dependencies": [
+              5
+            ],
+            "details": "Use a library or custom implementation to monitor request failures, open the circuit on repeated errors, and allow recovery after a cooldown period. Ensure fallback responses are provided when the circuit is open.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Health Check and Concurrent Request Handling",
+            "description": "Implement health check endpoints and manage concurrent request limits for the routing service.",
+            "dependencies": [
+              1
+            ],
+            "details": "Expose endpoints for service health monitoring and integrate logic to track and limit concurrent requests, ensuring stability under load.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 4,
@@ -103,7 +271,78 @@
           3
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Winston logging",
+            "description": "Install and configure the Winston logging library for the application, ensuring a centralized and customizable logger setup.",
+            "dependencies": [],
+            "details": "Install Winston via npm, create a logger instance using winston.createLogger, and configure basic transports and formats for structured logging.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Define error classes",
+            "description": "Create custom error classes to standardize error handling and enable structured error logging.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement a base error class and extend it for specific error types (e.g., ValidationError, NotFoundError) to provide consistent error structure and metadata.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement error middleware",
+            "description": "Develop middleware to handle errors, log them using Winston, and send appropriate responses to clients.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create Express middleware that catches errors, logs relevant details with Winston, and formats error responses based on error class.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add correlation IDs",
+            "description": "Integrate correlation IDs into requests and logs to enable traceability across distributed systems.",
+            "dependencies": [
+              1,
+              3
+            ],
+            "details": "Generate or extract a correlation ID for each incoming request, attach it to the request context, and include it in all log entries for that request.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Configure log rotation",
+            "description": "Set up log rotation to manage log file sizes and retention, ensuring logs are archived and old logs are removed as needed.",
+            "dependencies": [
+              1
+            ],
+            "details": "Integrate a Winston transport (such as winston-daily-rotate-file) to automatically rotate log files based on size or time, and configure retention policies.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Integrate logging throughout the application",
+            "description": "Ensure consistent and meaningful logging across all application modules and layers.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "details": "Refactor application code to use the centralized Winston logger for all log events, including informational, warning, and error messages, and ensure correlation IDs are included.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 5,
@@ -116,7 +355,61 @@
           4
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Refactor Main Handler",
+            "description": "Modularize the main handler by extracting responsibilities into focused functions or classes, improving readability and maintainability.",
+            "dependencies": [],
+            "details": "Apply extract method and preparatory refactoring techniques to split complex logic into smaller, testable units. Ensure existing functionality is preserved by running tests after each change.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Input Validation",
+            "description": "Add robust input validation to ensure all incoming data meets required formats and constraints before processing.",
+            "dependencies": [
+              1
+            ],
+            "details": "Define validation rules for each input parameter. Integrate validation checks at the entry point of the handler, returning clear error messages for invalid inputs.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Add Data Transformation",
+            "description": "Introduce data transformation logic to convert validated inputs into the required internal formats or structures.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement transformation functions that map raw inputs to domain models or DTOs as needed for downstream processing.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Integrate Error Handling and User Feedback",
+            "description": "Enhance the handler with comprehensive error handling and user feedback mechanisms.",
+            "dependencies": [
+              3
+            ],
+            "details": "Catch and handle exceptions gracefully, providing actionable feedback to users. Ensure all error cases are covered and responses are consistent.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Update Command Definition and Response Handling",
+            "description": "Revise the command definition and response logic to align with the refactored handler and new validation, transformation, and error handling flows.",
+            "dependencies": [
+              4
+            ],
+            "details": "Update command schemas, adjust response formats, and ensure integration with any new or updated services. Test end-to-end to confirm correct behavior.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 6,
@@ -129,7 +422,72 @@
           5
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Script for Command Discovery",
+            "description": "Develop a script to dynamically discover and load all command files from the designated commands directory, ensuring each command contains the required properties.",
+            "dependencies": [],
+            "details": "The script should recursively scan the commands directory, validate each command file for required properties (e.g., 'data' and 'execute'), and prepare them for registration.[2][3]",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Registration via Discord.js REST API",
+            "description": "Use the Discord.js REST API to register discovered commands with Discord, handling both bulk and individual command registration.",
+            "dependencies": [
+              1
+            ],
+            "details": "Utilize the REST and Routes modules from discord.js to send PUT requests to the appropriate Discord API endpoints, registering the commands for the application.[1][3][5]",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Support Guild/Global Deployment",
+            "description": "Add logic to deploy commands either to a specific guild or globally, based on configuration or environment variables.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement conditional logic to choose between Routes.applicationGuildCommands and Routes.applicationCommands, allowing for both guild-specific and global command registration.[3][5]",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Command Cleanup for Removed Commands",
+            "description": "Implement a mechanism to detect and remove commands from Discord that are no longer present in the local command set.",
+            "dependencies": [
+              3
+            ],
+            "details": "Compare the currently registered commands on Discord with the local set and issue DELETE requests for any commands that have been removed locally, ensuring no orphaned commands remain.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Environment-Specific Deployment Logic",
+            "description": "Incorporate environment-aware logic to control deployment behavior, such as using test guilds in development and global deployment in production.",
+            "dependencies": [
+              4
+            ],
+            "details": "Use environment variables or configuration files to determine the deployment target (guild or global) and other environment-specific settings, ensuring safe and appropriate command registration for each environment.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Command Versioning and Update Detection",
+            "description": "Implement versioning for commands and logic to detect changes, triggering updates only when command definitions have changed.",
+            "dependencies": [
+              5
+            ],
+            "details": "Track command versions (e.g., via a version field or hash of the command data) and compare with the registered versions on Discord, updating only those commands that have changed to minimize unnecessary API calls and downtime.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 7,
@@ -142,7 +500,81 @@
           6
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Extend Routing Service for Command Mapping",
+            "description": "Enhance the existing routing service to support mapping of commands to their respective endpoints, enabling dynamic routing based on command type.",
+            "dependencies": [],
+            "details": "Update the routing logic to associate each command with one or more endpoints. Ensure the service can handle new command types and update mappings as needed.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Endpoint Selection Logic",
+            "description": "Develop logic to select the most appropriate endpoint for a given command, considering factors such as endpoint type, security, and precedence.",
+            "dependencies": [
+              1
+            ],
+            "details": "Incorporate rules for endpoint selection, such as prioritizing secure endpoints or using route template precedence to determine the best match for each command.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Add Load Balancing",
+            "description": "Integrate load balancing mechanisms to distribute incoming commands evenly across available endpoints.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement algorithms such as round-robin or least-connections to balance the load and prevent any single endpoint from becoming a bottleneck.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement Failover Mechanisms",
+            "description": "Introduce failover strategies to reroute commands to healthy endpoints in case of endpoint failure.",
+            "dependencies": [
+              3
+            ],
+            "details": "Detect endpoint failures and automatically redirect traffic to backup or secondary endpoints to maintain service availability.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Efficient Command Lookup with Map",
+            "description": "Optimize command-to-endpoint lookup using a Map data structure for fast and efficient routing decisions.",
+            "dependencies": [
+              1
+            ],
+            "details": "Replace linear search or less efficient data structures with a Map to achieve constant-time lookup for command routing.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Endpoint Health Monitoring",
+            "description": "Implement continuous monitoring of endpoint health to inform routing, load balancing, and failover decisions.",
+            "dependencies": [
+              4
+            ],
+            "details": "Track the status of each endpoint using health checks and update their availability in real time for the routing service.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Periodic Health Checks",
+            "description": "Schedule and execute periodic health checks on all endpoints to proactively detect failures and performance issues.",
+            "dependencies": [],
+            "details": "Configure regular health check intervals and define criteria for endpoint health, integrating results with the health monitoring system.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 8,
@@ -155,7 +587,72 @@
           7
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement analyze command",
+            "description": "Develop the core functionality for the 'analyze' command, ensuring it follows CLI best practices and modular design.",
+            "dependencies": [],
+            "details": "Create the command structure, handle input/output, and ensure it integrates smoothly with the CLI framework.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement monitor command",
+            "description": "Develop the core functionality for the 'monitor' command, ensuring modularity and adherence to CLI standards.",
+            "dependencies": [
+              1
+            ],
+            "details": "Set up the command, manage input/output, and ensure it can be extended with validation and transformation logic.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement notify command",
+            "description": "Develop the core functionality for the 'notify' command, maintaining consistency with other commands.",
+            "dependencies": [
+              2
+            ],
+            "details": "Build the command structure, handle required arguments, and prepare for further enhancements.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add validation for each command",
+            "description": "Implement input validation for 'analyze', 'monitor', and 'notify' commands to ensure correct usage and error prevention.",
+            "dependencies": [
+              3
+            ],
+            "details": "Define validation rules for command arguments and options, and integrate them into each command's logic.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Add data transformation for each command",
+            "description": "Implement necessary data transformation logic for the input and output of each command.",
+            "dependencies": [
+              4
+            ],
+            "details": "Ensure data is correctly formatted and processed before being used or returned by each command.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Integrate rate limiting and error handling",
+            "description": "Add rate limiting and robust error handling mechanisms to all commands to ensure reliability and prevent misuse.",
+            "dependencies": [
+              5
+            ],
+            "details": "Implement logic to restrict command execution rates and handle errors gracefully, providing clear feedback to users.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 9,
@@ -168,7 +665,61 @@
           8
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create environment config files",
+            "description": "Set up separate configuration files for each environment (e.g., .env.development, .env.staging, .env.production) and a .env.example file to document required variables.",
+            "dependencies": [],
+            "details": "Ensure each config file contains environment-specific settings. The .env.example file should list all required variables with sample values, excluding sensitive data.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement environment detection",
+            "description": "Develop logic to detect the current environment (e.g., development, staging, production) at runtime.",
+            "dependencies": [
+              1
+            ],
+            "details": "Use environment variables such as NODE_ENV or a similar mechanism to determine which config file to load.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Configuration merging logic",
+            "description": "Implement logic to merge base configuration with environment-specific overrides.",
+            "dependencies": [
+              2
+            ],
+            "details": "Ensure that the merging process prioritizes environment-specific values while falling back to defaults where necessary.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add validation for required values",
+            "description": "Integrate validation to ensure all required configuration values are present and correctly formatted.",
+            "dependencies": [
+              3
+            ],
+            "details": "Use a validation library (e.g., zod, envalid) to check types and presence of required variables, providing clear error messages for missing or invalid values.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Test environment-specific overrides",
+            "description": "Verify that environment-specific configuration overrides work as expected and that validation catches errors.",
+            "dependencies": [
+              4
+            ],
+            "details": "Write and execute tests to confirm that the correct configuration is loaded for each environment and that missing or invalid values are properly handled.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 10,
@@ -181,7 +732,85 @@
           9
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement healthChecker service",
+            "description": "Develop a service that performs health checks on the application and its dependencies, exposing a health endpoint.",
+            "dependencies": [],
+            "details": "Create a health check controller/service using frameworks like NestJS Terminus or Express, ensuring it checks core services (e.g., database, external APIs) and returns appropriate status responses.[1][3][5]",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Schedule periodic health checks",
+            "description": "Set up a mechanism to run health checks at regular intervals.",
+            "dependencies": [
+              1
+            ],
+            "details": "Use a scheduler (such as node-cron) to trigger the healthChecker service periodically, logging or acting on failures as needed.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Admin commands for status/logs/config",
+            "description": "Implement admin-only commands to retrieve system status, logs, and configuration details.",
+            "dependencies": [
+              1
+            ],
+            "details": "Provide endpoints or CLI commands restricted to admins for querying health status, viewing logs, and managing configuration.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Monitoring dashboard data collection",
+            "description": "Collect and structure health and metrics data for use in a monitoring dashboard.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Aggregate health check results and relevant metrics in a format suitable for dashboard visualization, ensuring real-time updates.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Metrics storage (in-memory/Redis)",
+            "description": "Implement storage for health and metrics data, supporting both in-memory and Redis options.",
+            "dependencies": [
+              4
+            ],
+            "details": "Design a storage layer that can switch between in-memory and Redis backends for persisting health check and metrics data.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Integrate with node-cron",
+            "description": "Integrate the scheduling of health checks and metrics collection with node-cron.",
+            "dependencies": [
+              2,
+              5
+            ],
+            "details": "Configure node-cron jobs to trigger health checks and metrics collection/storage at defined intervals.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Permission handling for admin commands",
+            "description": "Implement robust permission checks for all admin commands and endpoints.",
+            "dependencies": [
+              3
+            ],
+            "details": "Ensure only authorized users can access admin commands for status, logs, and configuration, using role-based access control or similar mechanisms.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 11,
@@ -194,7 +823,81 @@
           10
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Per-User Rate Limiting",
+            "description": "Develop logic to restrict the number of requests each individual user can make within a defined time window, preventing abuse and ensuring fair resource allocation.",
+            "dependencies": [],
+            "details": "Design and integrate per-user counters, reset intervals, and enforcement mechanisms. Consider using Redis or similar for tracking counts in distributed setups.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Global Rate Limiting",
+            "description": "Establish a system-wide cap on the total number of requests processed across all users within a given period to protect backend resources.",
+            "dependencies": [
+              1
+            ],
+            "details": "Track aggregate request counts and enforce global thresholds. Ensure this logic works in both single-node and distributed environments.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Queue Management for N8N Requests",
+            "description": "Introduce a queuing mechanism to hold incoming requests when rate limits are reached, ensuring orderly processing and preventing overload.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement FIFO or configurable queue structures, integrate with n8n workflow triggers, and handle queue overflow scenarios.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Priority Queuing",
+            "description": "Enhance the queue to support prioritization, allowing high-priority requests to be processed ahead of lower-priority ones.",
+            "dependencies": [
+              3
+            ],
+            "details": "Define priority levels, update queue logic to reorder or segment requests, and ensure fairness and transparency in processing.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Queue Monitoring and Metrics",
+            "description": "Implement monitoring tools and metrics collection for the queue and rate limiting systems to provide visibility and support troubleshooting.",
+            "dependencies": [
+              4
+            ],
+            "details": "Expose metrics such as queue length, wait times, rate limit hits, and throughput. Integrate with dashboards or alerting systems as needed.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Redis Integration for Distributed Limits",
+            "description": "Integrate Redis to coordinate rate limiting and queue state across multiple nodes, enabling distributed scalability and consistency.",
+            "dependencies": [
+              5
+            ],
+            "details": "Use Redis for atomic counters, distributed locks, and queue state. Ensure failover and data consistency in clustered environments.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Graceful Degradation and User Messaging",
+            "description": "Design mechanisms to inform users when limits are reached or delays occur, providing clear feedback and fallback options.",
+            "dependencies": [],
+            "details": "Implement user-facing messages for rate limit violations, queue delays, and errors. Offer retry-after headers or alternative actions where possible.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 12,
@@ -207,12 +910,98 @@
           11
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Develop Unit Tests",
+            "description": "Write and organize unit tests to verify the smallest testable parts of the codebase in isolation, ensuring individual functions and methods behave as expected.",
+            "dependencies": [],
+            "details": "Focus on covering core logic and edge cases for each module or function. Use a testing framework appropriate for the project's language (e.g., Jest for JavaScript).",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Integration Tests",
+            "description": "Create integration tests to validate the interaction between multiple components or modules, ensuring they work together as intended.",
+            "dependencies": [
+              1
+            ],
+            "details": "Test the integration points such as database connections, API endpoints, and service interactions. Use tools that support integration testing and mock external dependencies where necessary.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Design End-to-End Tests",
+            "description": "Develop end-to-end (E2E) tests to simulate real user scenarios and workflows, verifying the system as a whole from the user's perspective.",
+            "dependencies": [
+              2
+            ],
+            "details": "Utilize E2E testing frameworks (e.g., Cypress, Selenium) to automate user flows, covering critical paths and edge cases across the application.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Achieve Code Coverage Targets",
+            "description": "Measure and improve code coverage to meet defined targets, ensuring that tests sufficiently exercise the codebase and reduce the risk of undetected bugs.",
+            "dependencies": [
+              1,
+              2,
+              3
+            ],
+            "details": "Use code coverage tools to generate reports, identify untested areas, and iteratively add tests to close coverage gaps. Set realistic, high-impact coverage goals rather than aiming for 100% indiscriminately[1][3].",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Generate API Documentation with JSDoc",
+            "description": "Document all public APIs using JSDoc comments to provide clear, up-to-date reference material for developers and consumers of the API.",
+            "dependencies": [],
+            "details": "Annotate functions, classes, and modules with JSDoc comments. Use documentation generators to produce readable HTML or markdown documentation.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Write Deployment Guides",
+            "description": "Create comprehensive deployment guides detailing the steps required to deploy the application in various environments.",
+            "dependencies": [
+              5
+            ],
+            "details": "Include environment setup, configuration, dependency installation, and troubleshooting steps. Ensure guides are accessible and kept up to date with deployment changes.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Set Up Docker Compose",
+            "description": "Configure Docker Compose to orchestrate multi-container setups for local development, testing, and deployment.",
+            "dependencies": [],
+            "details": "Define services, networks, and volumes in a docker-compose.yml file. Ensure all dependencies (e.g., databases, caches) are included and properly configured.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Establish CI/CD Workflow and Pre-commit Hooks",
+            "description": "Implement a CI/CD pipeline to automate testing, code coverage checks, builds, and deployments, and configure pre-commit hooks to enforce code quality standards before code is committed.",
+            "dependencies": [
+              4,
+              7
+            ],
+            "details": "Integrate with version control systems (e.g., GitHub Actions, GitLab CI). Automate running of tests, code coverage analysis, linting, and deployment steps. Use tools like Husky for pre-commit hooks to run linters and tests locally.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-07-05T19:52:47.237Z",
-      "updated": "2025-07-05T20:14:30.070Z",
+      "updated": "2025-07-05T20:51:34.157Z",
       "description": "Tasks for master context"
     }
   }
