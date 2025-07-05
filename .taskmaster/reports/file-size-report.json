@@ -1,0 +1,141 @@
+{
+  "timestamp": "2025-07-05T20:04:54.162Z",
+  "maxLines": 250,
+  "triggerThreshold": 240,
+  "violations": [],
+  "warnings": [],
+  "compliant": [
+    {
+      "path": ".taskmaster/tasks/tasks.json",
+      "lines": 219,
+      "overLimit": -31,
+      "nearLimit": 31
+    },
+    {
+      "path": "scripts/file-size-monitor.js",
+      "lines": 212,
+      "overLimit": -38,
+      "nearLimit": 38
+    },
+    {
+      "path": "README.md",
+      "lines": 205,
+      "overLimit": -45,
+      "nearLimit": 45
+    },
+    {
+      "path": "lib/event-handlers/thread-handler.js",
+      "lines": 132,
+      "overLimit": -118,
+      "nearLimit": 118
+    },
+    {
+      "path": ".taskmaster/docs/modular-structure-plan.md",
+      "lines": 127,
+      "overLimit": -123,
+      "nearLimit": 123
+    },
+    {
+      "path": "DOCKER.md",
+      "lines": 125,
+      "overLimit": -125,
+      "nearLimit": 125
+    },
+    {
+      "path": "lib/event-data.js",
+      "lines": 109,
+      "overLimit": -141,
+      "nearLimit": 141
+    },
+    {
+      "path": ".taskmaster/docs/prd.txt",
+      "lines": 104,
+      "overLimit": -146,
+      "nearLimit": 146
+    },
+    {
+      "path": "commands/scrape.js",
+      "lines": 103,
+      "overLimit": -147,
+      "nearLimit": 147
+    },
+    {
+      "path": "lib/formatters.js",
+      "lines": 97,
+      "overLimit": -153,
+      "nearLimit": 153
+    },
+    {
+      "path": "index.js",
+      "lines": 70,
+      "overLimit": -180,
+      "nearLimit": 180
+    },
+    {
+      "path": "lib/event-handlers/reaction-handler.js",
+      "lines": 68,
+      "overLimit": -182,
+      "nearLimit": 182
+    },
+    {
+      "path": "lib/commands.js",
+      "lines": 64,
+      "overLimit": -186,
+      "nearLimit": 186
+    },
+    {
+      "path": ".taskmaster/templates/example_prd.txt",
+      "lines": 47,
+      "overLimit": -203,
+      "nearLimit": 203
+    },
+    {
+      "path": "lib/event-handlers/message-handler.js",
+      "lines": 40,
+      "overLimit": -210,
+      "nearLimit": 210
+    },
+    {
+      "path": "lib/n8n-service.js",
+      "lines": 39,
+      "overLimit": -211,
+      "nearLimit": 211
+    },
+    {
+      "path": ".taskmaster/config.json",
+      "lines": 37,
+      "overLimit": -213,
+      "nearLimit": 213
+    },
+    {
+      "path": "deploy-commands.js",
+      "lines": 24,
+      "overLimit": -226,
+      "nearLimit": 226
+    },
+    {
+      "path": "package.json",
+      "lines": 24,
+      "overLimit": -226,
+      "nearLimit": 226
+    },
+    {
+      "path": "docker-compose.yml",
+      "lines": 21,
+      "overLimit": -229,
+      "nearLimit": 229
+    },
+    {
+      "path": ".taskmaster/state.json",
+      "lines": 6,
+      "overLimit": -244,
+      "nearLimit": 244
+    }
+  ],
+  "summary": {
+    "totalFiles": 21,
+    "violationCount": 0,
+    "warningCount": 0,
+    "compliantCount": 21
+  }
+}

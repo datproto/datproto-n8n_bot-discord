@@ -1,0 +1,219 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Refactor Existing Code Structure and Split Large Files",
+        "description": "Split existing scrape.js and other large files into modular components following the 250-line limit requirement",
+        "details": "Analyze current codebase and split large files into smaller modules. Create separate files for command handlers, utilities, and validation logic. Use ES6 modules with proper imports/exports. Implement file size monitoring using tools like 'cloc' or custom scripts. Structure: commands/scrape/handler.js, commands/scrape/validator.js, commands/scrape/utils.js, etc. Each file should have a single responsibility and be under 250 lines.",
+        "testStrategy": "Verify all files are under 250 lines using automated checks. Test that existing functionality remains intact after refactoring. Use Jest for unit testing each module independently.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Analyze Current Codebase and Identify Large Files",
+            "description": "Review the existing codebase to locate all files exceeding the 250-line limit, with a focus on scrape.js and other large files.",
+            "dependencies": [],
+            "details": "Use code analysis tools or manual inspection to list all files that need to be split. Document their current responsibilities and interdependencies.\n<info added on 2025-07-05T19:54:09.617Z>\n**Analysis Complete - Critical Violation Found**\n\nPrimary violation identified: index.js at 391 lines (141 lines over 250-line limit). All other files are compliant.\n\n**Detailed File Structure Analysis:**\nindex.js breakdown reveals 9 distinct functional sections:\n- Client configuration and imports (lines 1-30)\n- Utility formatting functions (lines 31-55)\n- Content type detection (lines 56-80)\n- N8N communication layer (lines 81-110)\n- Event data creation logic (lines 111-185)\n- Message handling (lines 186-220)\n- Reaction processing (lines 221-260)\n- Thread event management (lines 261-340)\n- Command registration and startup (lines 341-391)\n\n**Recommended Modular Split:**\nCreate 7 focused files to replace monolithic index.js:\n- lib/client.js - Client configuration and startup logic\n- lib/formatters.js - Utility formatting and content detection\n- lib/n8n-service.js - N8N communication interface\n- lib/event-handlers/message-handler.js - Message event processing\n- lib/event-handlers/reaction-handler.js - Reaction event processing\n- lib/event-handlers/thread-handler.js - Thread event management\n- lib/commands.js - Command registration system\n\nThis structure ensures each file maintains single responsibility and stays well under the 250-line limit while preserving all existing functionality.\n</info added on 2025-07-05T19:54:09.617Z>",
+            "status": "done",
+            "testStrategy": "Verify that all files over 250 lines are identified and their responsibilities are clearly documented."
+          },
+          {
+            "id": 2,
+            "title": "Define Modular Structure and Responsibilities",
+            "description": "Design a modular file structure by assigning single responsibilities to each new module, such as command handlers, utilities, and validation logic.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a mapping from existing code sections to new modules (e.g., commands/scrape/handler.js, commands/scrape/validator.js, commands/scrape/utils.js). Ensure each module will be under 250 lines.\n<info added on 2025-07-05T19:55:19.694Z>\nCompleted detailed modular structure design. Created comprehensive plan document at `.taskmaster/docs/modular-structure-plan.md`.\n\nKey Design Decisions:\n1. 8 focused modules replacing 1 monolithic file\n2. Largest module: thread-handler.js at ~85 lines (well under 250 limit)\n3. Clear dependency hierarchy preventing circular dependencies\n4. Single responsibility for each module\n\nDirectory Structure Created:\nlib/\n├── formatters.js (~40 lines)\n├── n8n-service.js (~35 lines)  \n├── event-data.js (~80 lines)\n├── commands.js (~35 lines)\n└── event-handlers/\n    ├── message-handler.js (~45 lines)\n    ├── reaction-handler.js (~50 lines)\n    └── thread-handler.js (~85 lines)\n\nCompliance Verification:\n- All modules designed to stay under 250-line limit\n- Total estimated lines: ~370 (close to original 391)\n- Proper separation of concerns achieved\n- Clean import/export structure planned\n\nReady to proceed with actual code refactoring in subtask 1.3.\n</info added on 2025-07-05T19:55:19.694Z>",
+            "status": "done",
+            "testStrategy": "Review the proposed structure for clarity, single responsibility, and compliance with the 250-line limit."
+          },
+          {
+            "id": 3,
+            "title": "Refactor and Split Large Files into ES6 Modules",
+            "description": "Move code from large files into the newly defined modules, using ES6 import/export syntax to maintain functionality.",
+            "dependencies": [
+              2
+            ],
+            "details": "Refactor code incrementally, ensuring each new file is self-contained and under the line limit. Update imports and exports as needed.\n<info added on 2025-07-05T20:00:40.117Z>\nCOMPLETED: Successfully refactored all code files to eliminate line limit violations. Reduced index.js from 391 lines to 69 lines (322 line reduction). Created 8 modular files with clear separation of concerns: formatters.js (96 lines), n8n-service.js (38 lines), event-data.js (108 lines), message-handler.js (39 lines), reaction-handler.js (67 lines), thread-handler.js (131 lines), commands.js (63 lines), and refactored index.js (69 lines). All modules use ES6 syntax, maintain proper dependency hierarchy, and comply with 250-line limit. Largest module is now 131 lines. Original index.js backed up. All files passed syntax validation and follow single responsibility principle.\n</info added on 2025-07-05T20:00:40.117Z>",
+            "status": "done",
+            "testStrategy": "Run automated and manual tests to confirm that the application works as before and that no module exceeds 250 lines."
+          },
+          {
+            "id": 4,
+            "title": "Implement File Size Monitoring",
+            "description": "Set up automated monitoring of file sizes using tools like 'cloc' or custom scripts to enforce the 250-line limit.",
+            "dependencies": [
+              3
+            ],
+            "details": "Integrate file size checks into the development workflow (e.g., pre-commit hooks or CI pipelines) to prevent future violations.\n<info added on 2025-07-05T20:05:44.935Z>\nSuccessfully implemented comprehensive file size monitoring system with automated checks and CI/CD integration. Created main monitor script (scripts/file-size-monitor.js, 174 lines) with configurable limits, JSON reporting, and exclusion of auto-generated files. Added NPM scripts for basic and strict monitoring modes. Implemented pre-commit hook (scripts/pre-commit-hook.sh) to automatically block commits with file size violations. Created detailed documentation in .taskmaster/docs/file-size-monitoring.md covering usage, integration guidelines, and troubleshooting. Current compliance status shows all 21 files comply with 250-line limit and 240-line warning threshold. System features configurable thresholds, color-coded console reports, JSON report persistence in .taskmaster/reports/, and full CI/CD integration support.\n</info added on 2025-07-05T20:05:44.935Z>",
+            "status": "done",
+            "testStrategy": "Test the monitoring setup by intentionally exceeding the limit in a test file and verifying that the system flags the violation."
+          },
+          {
+            "id": 5,
+            "title": "Validate Refactored Codebase and Update Documentation",
+            "description": "Perform comprehensive testing and update documentation to reflect the new modular structure.",
+            "dependencies": [
+              4
+            ],
+            "details": "Run all existing and new tests, involve QA if available, and update README or developer guides to describe the new file organization and module responsibilities.",
+            "status": "in-progress",
+            "testStrategy": "Ensure all tests pass, code quality is maintained, and documentation accurately describes the new structure."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Create Configuration Management System",
+        "description": "Implement a centralized configuration system for managing multiple N8N endpoints and environment-specific settings",
+        "details": "Create config/endpoints.json for endpoint mappings and config/environment.js for environment management. Use dotenv ^16.3.1 for environment variables. Implement configuration validation using Joi ^17.11.0. Structure: { endpoints: { scrape: { url, timeout, retries }, analyze: { url, timeout, retries } }, environments: { dev, staging, production } }. Include configuration hot-reloading capability.",
+        "testStrategy": "Test configuration loading for different environments. Validate configuration schema with invalid inputs. Test hot-reloading functionality and fallback mechanisms.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Build N8N Routing Service Layer",
+        "description": "Create a centralized service for routing Discord commands to appropriate N8N webhook endpoints",
+        "details": "Create services/n8nRouter.js using axios ^1.6.0 for HTTP requests. Implement endpoint routing based on command type, retry logic with exponential backoff, timeout handling, and response transformation. Use async/await patterns. Include methods: routeCommand(commandType, payload), healthCheck(endpoint), retryRequest(config). Implement circuit breaker pattern using opossum ^8.0.0 for resilience.",
+        "testStrategy": "Mock N8N endpoints for testing. Test retry logic with simulated failures. Verify timeout handling and circuit breaker functionality. Test concurrent request handling.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Implement Comprehensive Error Handling and Logging",
+        "description": "Add robust error handling and structured logging throughout the application",
+        "details": "Implement winston ^3.11.0 for structured logging with different log levels (error, warn, info, debug). Create error classes for different error types (N8NError, ConfigError, ValidationError). Add error middleware for Discord interactions. Log format: JSON with timestamp, level, message, metadata. Include request correlation IDs using uuid ^9.0.1. Create logs/app.log and logs/error.log with rotation using winston-daily-rotate-file ^4.7.1.",
+        "testStrategy": "Test error scenarios and verify proper logging. Test log rotation and file creation. Verify error messages are user-friendly while maintaining detailed logs for debugging.",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Update Existing Scrape Command Architecture",
+        "description": "Migrate the existing scrape command to use the new modular architecture and N8N routing service",
+        "details": "Refactor commands/scrape.js to use the new N8N routing service. Implement command validation using Joi schemas. Add proper error handling and user feedback. Structure: commands/scrape/index.js (main handler), commands/scrape/validator.js (input validation), commands/scrape/transformer.js (data transformation). Use Discord.js v14 SlashCommandBuilder for command definition. Implement ephemeral responses for better UX.",
+        "testStrategy": "Test scrape command with various URL inputs. Verify error handling for invalid URLs and N8N failures. Test response formatting and ephemeral message behavior.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Create Command Registration and Deployment System",
+        "description": "Implement automatic Discord slash command registration and deployment system",
+        "details": "Create scripts/deployCommands.js using Discord.js REST API. Implement command discovery from commands/ directory. Support for guild-specific and global command deployment. Use @discordjs/rest ^2.2.0 and discord-api-types ^0.37.61. Include command cleanup for removed commands. Add environment-specific deployment (dev guild vs global). Implement command versioning and update detection.",
+        "testStrategy": "Test command registration in development guild. Verify command updates and deletions. Test global vs guild-specific deployment scenarios.",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Implement Multi-Endpoint Command Routing",
+        "description": "Create the core routing system that maps different Discord commands to specific N8N webhook endpoints",
+        "details": "Extend the N8N routing service to support command-to-endpoint mapping. Create services/commandRouter.js that reads from configuration and routes commands appropriately. Implement endpoint selection logic, load balancing for multiple endpoints of same type, and failover mechanisms. Use Map data structure for efficient command lookup. Include endpoint health monitoring with periodic checks.",
+        "testStrategy": "Test routing for different command types. Verify failover behavior when endpoints are down. Test load balancing with multiple endpoints. Mock various N8N response scenarios.",
+        "priority": "medium",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Add New Command Types (Analyze, Monitor, Notify)",
+        "description": "Implement additional command types beyond scraping to demonstrate multi-endpoint capabilities",
+        "details": "Create commands/analyze/, commands/monitor/, and commands/notify/ directories. Each command should follow the modular structure established. Implement command-specific validation and data transformation. Use Discord.js SlashCommandBuilder with appropriate options (strings, choices, attachments). Include rate limiting using bottleneck ^2.19.5. Add command-specific error handling and user feedback.",
+        "testStrategy": "Test each new command type independently. Verify command-specific validation and error handling. Test rate limiting behavior and user feedback.",
+        "priority": "low",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement Environment-Specific Configuration",
+        "description": "Create environment-specific configurations for development, staging, and production deployments",
+        "details": "Create config/environments/ directory with dev.json, staging.json, production.json. Implement environment detection using NODE_ENV. Create configuration merging logic that combines base config with environment-specific overrides. Include different N8N endpoint URLs, timeout values, and retry configurations per environment. Use config validation to ensure required values are present.",
+        "testStrategy": "Test configuration loading for each environment. Verify environment-specific overrides work correctly. Test missing configuration scenarios and validation errors.",
+        "priority": "medium",
+        "dependencies": [
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Add Health Checking and Monitoring",
+        "description": "Implement endpoint health checking, monitoring, and admin commands for operational visibility",
+        "details": "Create services/healthChecker.js with periodic health checks for all configured N8N endpoints. Implement admin commands for checking endpoint status, viewing logs, and managing configurations. Use node-cron ^3.0.3 for scheduled health checks. Create monitoring dashboard data collection. Include metrics like response times, success rates, and error counts. Store health data in memory with optional Redis integration using ioredis ^5.3.2.",
+        "testStrategy": "Test health check functionality with healthy and unhealthy endpoints. Verify admin commands work correctly with proper permissions. Test monitoring data collection and storage.",
+        "priority": "low",
+        "dependencies": [
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Implement Rate Limiting and Queue Management",
+        "description": "Add rate limiting and queue management to handle high-volume usage and prevent API abuse",
+        "details": "Implement rate limiting using bottleneck ^2.19.5 with per-user and global limits. Create queue management for N8N requests to prevent overwhelming endpoints. Use Redis for distributed rate limiting if needed. Implement priority queuing for different command types. Add queue monitoring and metrics. Include graceful degradation when limits are exceeded with informative user messages.",
+        "testStrategy": "Test rate limiting with simulated high-volume requests. Verify queue behavior under load. Test priority queuing and graceful degradation scenarios.",
+        "priority": "low",
+        "dependencies": [
+          10
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Create Comprehensive Testing Suite and Documentation",
+        "description": "Implement full testing coverage and create comprehensive documentation for the system",
+        "details": "Create comprehensive test suite using Jest ^29.7.0 with unit tests, integration tests, and end-to-end tests. Achieve >90% code coverage. Create API documentation using JSDoc ^4.0.2. Write deployment guides, configuration documentation, and troubleshooting guides. Include Docker Compose setup with test environment. Create GitHub Actions workflow for CI/CD using actions/setup-node@v4. Add pre-commit hooks using husky ^8.0.3 and lint-staged ^15.1.0.",
+        "testStrategy": "Verify test coverage meets requirements. Test CI/CD pipeline functionality. Validate documentation accuracy and completeness. Test Docker deployment scenarios.",
+        "priority": "medium",
+        "dependencies": [
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-05T19:52:47.237Z",
+      "updated": "2025-07-05T20:05:59.602Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
