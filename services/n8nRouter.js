@@ -1,9 +1,5 @@
 /**
  * N8N Routing Service Layer
- * 
- * Centralized service for routing Discord commands to appropriate N8N webhook endpoints.
- * Implements retry logic, circuit breaker pattern, timeout handling, and response transformation.
- * 
  * @module N8NRouter
  */
 
@@ -11,10 +7,10 @@ const { EventEmitter } = require('events');
 const RequestHandler = require('./requestHandler');
 const CircuitBreakerManager = require('./circuitBreakerManager');
 const EndpointManager = require('./endpointManager');
+const FallbackResponseManager = require('./fallbackResponseManager');
 
 /**
  * N8N Router Service Class
- * Orchestrates routing of Discord commands to N8N webhook endpoints with resilience patterns
  */
 class N8NRouter extends EventEmitter {
   constructor(options = {}) {
@@ -33,6 +29,7 @@ class N8NRouter extends EventEmitter {
     this.requestHandler = new RequestHandler(options);
     this.circuitBreakerManager = new CircuitBreakerManager(options);
     this.endpointManager = new EndpointManager();
+    this.fallbackManager = new FallbackResponseManager(options);
 
     // Set up event forwarding
     this.setupEventForwarding();
@@ -42,7 +39,6 @@ class N8NRouter extends EventEmitter {
 
     this.emit('service:initialized', { timestamp: new Date().toISOString() });
   }
-
   setupEventForwarding() {
     // Forward request handler events
     this.requestHandler.on('request:start', (data) => this.emit('request:start', data));
@@ -58,7 +54,6 @@ class N8NRouter extends EventEmitter {
     this.endpointManager.on('endpoints:initialized', (data) => this.emit('endpoints:initialized', data));
     this.endpointManager.on('endpoint:not_found', (data) => this.emit('endpoint:not_found', data));
   }
-
   initializeCircuitBreakers() {
     const availableCommands = this.endpointManager.getAvailableCommands();
     availableCommands.forEach(commandType => {
@@ -132,12 +127,32 @@ class N8NRouter extends EventEmitter {
       });
 
       // Execute request through circuit breaker
-      const response = await circuitBreaker.fire(requestConfig);
+      let response;
+      try {
+        response = await circuitBreaker.fire(requestConfig);
+      } catch (error) {
+        // Check if circuit breaker is open
+        if (error.name === 'OpenCircuitError' || circuitBreaker.opened) {
+          this.emit('circuit:fallback', {
+            requestId,
+            commandType,
+            circuitState: circuitBreaker.state
+          });
 
-      // Transform response with routing metadata
-      const transformedResponse = this.requestHandler.transformResponse(response, commandType);
-      transformedResponse.routing = routingInfo.routing;
-      transformedResponse.requestId = requestId;
+          // Return fallback response instead of throwing error
+          return this.fallbackManager.createCircuitBreakerFallback(commandType, requestId, startTime);
+        }
+
+        // Re-throw other errors
+        throw error;
+      }
+
+      // Transform response with enhanced metadata and routing information
+      const transformedResponse = this.requestHandler.transformResponse(response, commandType, {
+        requestId,
+        startTime,
+        routing: routingInfo.routing
+      });
 
       this.emit('command:routed', {
         requestId,
@@ -163,6 +178,8 @@ class N8NRouter extends EventEmitter {
     }
   }
 
+  /**
+   * Create fallback response when circuit breaker is open
   /**
    * Health check for a specific endpoint
    * @param {string} endpointKey - The endpoint to check

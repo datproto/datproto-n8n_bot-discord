@@ -74,6 +74,27 @@ class CircuitBreakerManager extends EventEmitter {
   }
 
   /**
+   * Create circuit breaker with fallback options
+   * @param {string} endpointKey - The endpoint identifier
+   * @param {Function} executeFunction - The function to wrap with circuit breaker
+   * @param {Object} fallbackOptions - Fallback configuration options
+   * @returns {CircuitBreaker} The created circuit breaker
+   */
+  createCircuitBreakerWithFallback(endpointKey, executeFunction, fallbackOptions = {}) {
+    const breaker = this.createCircuitBreaker(endpointKey, executeFunction);
+
+    // Add fallback options to breaker metadata
+    breaker.fallbackOptions = {
+      enabled: fallbackOptions.enabled !== false,
+      responseType: fallbackOptions.responseType || 'service_unavailable',
+      retryAfter: fallbackOptions.retryAfter || '60s',
+      customMessage: fallbackOptions.customMessage || null
+    };
+
+    return breaker;
+  }
+
+  /**
    * Get circuit breaker for an endpoint
    * @param {string} endpointKey - The endpoint identifier
    * @returns {CircuitBreaker|null} The circuit breaker or null if not found
@@ -127,6 +148,25 @@ class CircuitBreakerManager extends EventEmitter {
       totalBreakers: this.circuitBreakers.size,
       breakerStates: this.getAllStates()
     };
+  }
+
+  /**
+   * Check if any circuit breakers are currently open
+   * @returns {boolean} True if any breakers are open
+   */
+  hasOpenCircuits() {
+    return Array.from(this.circuitBreakers.values()).some(breaker => breaker.opened);
+  }
+
+  /**
+   * Get circuit breakers by state
+   * @param {string} state - Circuit breaker state ('open', 'closed', 'halfOpen')
+   * @returns {Array} Array of circuit breakers in the specified state
+   */
+  getCircuitBreakersByState(state) {
+    return Array.from(this.circuitBreakers.entries())
+      .filter(([key, breaker]) => breaker.state === state)
+      .map(([key, breaker]) => ({ endpoint: key, breaker }));
   }
 
   /**

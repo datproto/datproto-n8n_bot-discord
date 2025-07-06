@@ -1,50 +1,35 @@
-/**
- * Services Module Index
- * 
- * Central export point for all service modules.
- * Provides easy access to routing, monitoring, and other service components.
- * 
- * @module Services
- */
-
 const N8NRouter = require('./n8nRouter');
 const RequestHandler = require('./requestHandler');
 const CircuitBreakerManager = require('./circuitBreakerManager');
 const EndpointManager = require('./endpointManager');
 const RoutingTableBuilder = require('./routingTableBuilder');
-
-/**
- * Service factory and management
- */
+const HealthMonitor = require('./healthMonitor');
+const ConcurrentRequestManager = require('./concurrentRequestManager');
 class ServiceManager {
   constructor() {
     this.services = new Map();
     this.initialized = false;
+    this.healthMonitor = null;
+    this.concurrentRequestManager = null;
   }
-
-  /**
-   * Initialize all services
-   * @param {Object} config - Service configuration options
-   */
   async initialize(config = {}) {
     if (this.initialized) {
       throw new Error('Services already initialized');
     }
 
     try {
-      // Initialize N8N Router
       const n8nRouter = new N8NRouter(config.n8nRouter || {});
       this.services.set('n8nRouter', n8nRouter);
-
-      // Set up service event forwarding if needed
+      this.healthMonitor = new HealthMonitor(config.healthMonitor || {});
+      this.services.set('healthMonitor', this.healthMonitor);
+      this.concurrentRequestManager = new ConcurrentRequestManager(config.concurrentRequests || {});
+      this.services.set('concurrentRequestManager', this.concurrentRequestManager);
       n8nRouter.on('service:initialized', (data) => {
         console.log('[N8NRouter] Service initialized:', data);
       });
-
       n8nRouter.on('command:routed', (data) => {
         console.log('[N8NRouter] Command routed:', data);
       });
-
       n8nRouter.on('circuit:open', (data) => {
         console.warn('[N8NRouter] Circuit breaker opened:', data);
       });
@@ -54,6 +39,10 @@ class ServiceManager {
       });
 
       this.initialized = true;
+
+      // Start health monitoring after initialization
+      await this.startHealthMonitoring();
+
       console.log('[ServiceManager] All services initialized successfully');
 
       return this;
@@ -90,14 +79,70 @@ class ServiceManager {
   }
 
   /**
-   * Check health of all services
-   * @returns {Promise<Object>} Health status of all services
+   * Start health monitoring for all services
+   */
+  async startHealthMonitoring() {
+    if (!this.healthMonitor) {
+      return;
+    }
+
+    const services = {
+      n8nRouter: this.getN8NRouter(),
+      requestHandler: this.getN8NRouter()?.requestHandler,
+      circuitBreakerManager: this.getN8NRouter()?.circuitBreakerManager
+    };
+
+    this.healthMonitor.startMonitoring(services);
+
+    // Set up health event handling
+    this.healthMonitor.on('health:unhealthy', (data) => {
+      console.warn('[HealthMonitor] Unhealthy status detected:', data.overall);
+    });
+
+    this.healthMonitor.on('monitoring:started', (data) => {
+      console.log('[HealthMonitor] Health monitoring started with interval:', data.interval + 'ms');
+    });
+  }
+
+  /**
+   * Get health monitor instance
+   * @returns {HealthMonitor} Health monitor instance
+   */
+  getHealthMonitor() {
+    return this.healthMonitor;
+  }
+
+  /**
+   * Get concurrent request manager instance
+   * @returns {ConcurrentRequestManager} Concurrent request manager instance
+   */
+  getConcurrentRequestManager() {
+    return this.concurrentRequestManager;
+  }
+
+  /**
+   * Check health of all services (enhanced version)
+   * @returns {Promise<Object>} Comprehensive health status
    */
   async healthCheck() {
     if (!this.initialized) {
       return { healthy: false, error: 'Services not initialized' };
     }
 
+    // Use health monitor if available for comprehensive check
+    if (this.healthMonitor) {
+      return await this.healthMonitor.performHealthCheck();
+    }
+
+    // Fallback to basic health check
+    return this.basicHealthCheck();
+  }
+
+  /**
+   * Basic health check without health monitor
+   * @returns {Promise<Object>} Basic health status
+   */
+  async basicHealthCheck() {
     const results = {};
 
     try {
@@ -134,6 +179,16 @@ class ServiceManager {
     console.log('[ServiceManager] Shutting down services...');
 
     try {
+      // Stop health monitoring
+      if (this.healthMonitor) {
+        this.healthMonitor.stopMonitoring();
+      }
+
+      // Shutdown concurrent request manager
+      if (this.concurrentRequestManager) {
+        this.concurrentRequestManager.shutdown();
+      }
+
       // Shutdown N8N Router
       const n8nRouter = this.services.get('n8nRouter');
       if (n8nRouter) {
@@ -141,6 +196,8 @@ class ServiceManager {
       }
 
       this.services.clear();
+      this.healthMonitor = null;
+      this.concurrentRequestManager = null;
       this.initialized = false;
 
       console.log('[ServiceManager] All services shut down successfully');
@@ -148,6 +205,30 @@ class ServiceManager {
       console.error('[ServiceManager] Error during shutdown:', error);
       throw error;
     }
+  }
+
+  /**
+   * Get detailed health status including history and monitoring data
+   * @returns {Object} Detailed health status
+   */
+  getDetailedHealthStatus() {
+    if (!this.healthMonitor) {
+      return { error: 'Health monitoring not available' };
+    }
+
+    return this.healthMonitor.getHealthStatus();
+  }
+
+  /**
+   * Get concurrent request statistics
+   * @returns {Object} Concurrent request statistics
+   */
+  getConcurrentRequestStats() {
+    if (!this.concurrentRequestManager) {
+      return { error: 'Concurrent request manager not available' };
+    }
+
+    return this.concurrentRequestManager.getDetailedStatus();
   }
 }
 
@@ -160,6 +241,8 @@ module.exports = {
   CircuitBreakerManager,
   EndpointManager,
   RoutingTableBuilder,
+  HealthMonitor,
+  ConcurrentRequestManager,
   ServiceManager,
   serviceManager
 };
