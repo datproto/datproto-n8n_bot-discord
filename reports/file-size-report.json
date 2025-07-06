@@ -1,8 +1,15 @@
 {
-  "timestamp": "2025-07-06T16:09:09.933Z",
+  "timestamp": "2025-07-06T16:17:40.430Z",
   "maxLines": 250,
   "triggerThreshold": 240,
-  "violations": [],
+  "violations": [
+    {
+      "path": "commands/scrape/transformer.js",
+      "lines": 284,
+      "overLimit": 34,
+      "nearLimit": -34
+    }
+  ],
   "warnings": [
     {
       "path": "services/healthMonitor.js",
@@ -29,6 +36,12 @@
       "lines": 237,
       "overLimit": -13,
       "nearLimit": 13
+    },
+    {
+      "path": "commands/scrape/validator.js",
+      "lines": 234,
+      "overLimit": -16,
+      "nearLimit": 16
     },
     {
       "path": "lib/logging/logger.js",
@@ -133,6 +146,12 @@
       "nearLimit": 84
     },
     {
+      "path": "commands/scrape/index.js",
+      "lines": 163,
+      "overLimit": -87,
+      "nearLimit": 87
+    },
+    {
       "path": "config/defaults.js",
       "lines": 162,
       "overLimit": -88,
@@ -185,12 +204,6 @@
       "lines": 124,
       "overLimit": -126,
       "nearLimit": 126
-    },
-    {
-      "path": "commands/scrape.js",
-      "lines": 118,
-      "overLimit": -132,
-      "nearLimit": 132
     },
     {
       "path": "services/fallbackResponseManager.js",
@@ -361,6 +374,12 @@
       "nearLimit": 235
     },
     {
+      "path": "commands/scrape.js",
+      "lines": 9,
+      "overLimit": -241,
+      "nearLimit": 241
+    },
+    {
       "path": ".taskmaster/state.json",
       "lines": 6,
       "overLimit": -244,
@@ -368,9 +387,9 @@
     }
   ],
   "summary": {
-    "totalFiles": 60,
-    "violationCount": 0,
+    "totalFiles": 63,
+    "violationCount": 1,
     "warningCount": 3,
-    "compliantCount": 57
+    "compliantCount": 59
   }
 }
