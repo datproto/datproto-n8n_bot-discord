@@ -9,6 +9,9 @@ require('dotenv').config();
 // Discord.js imports
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 
+// Import logging and correlation
+const { logger, correlation } = require('./lib/logging');
+
 // Import event handlers
 const { registerMessageHandlers } = require('./lib/event-handlers/message-handler');
 const { registerReactionHandlers } = require('./lib/event-handlers/reaction-handler');
@@ -44,7 +47,11 @@ const client = new Client({
 
 // Initialize services
 async function initializeServices() {
+    const correlationId = correlation.startCorrelation();
+    
     try {
+        logger.info('Initializing application services', { correlationId });
+        
         await serviceManager.initialize({
             n8nRouter: {
                 timeout: parseInt(process.env.N8N_TIMEOUT) || 30000,
@@ -52,19 +59,31 @@ async function initializeServices() {
                 maxConcurrentRequests: parseInt(process.env.N8N_MAX_CONCURRENT) || 10
             }
         });
-        console.log('Services initialized successfully');
+        
+        logger.info('Services initialized successfully', { correlationId });
     } catch (error) {
-        console.error('Failed to initialize services:', error);
+        logger.error('Failed to initialize services', { correlationId, error });
         process.exit(1);
+    } finally {
+        correlation.endCorrelation();
     }
 }
 
 // Client ready event
 client.once('ready', async () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+    const correlationId = correlation.startCorrelation();
+    
+    logger.info('Discord client ready', {
+        correlationId,
+        botTag: client.user.tag,
+        botId: client.user.id,
+        guilds: client.guilds.cache.size
+    });
 
     // Initialize services after Discord client is ready
     await initializeServices();
+    
+    correlation.endCorrelation();
 });
 
 // Register all event handlers
@@ -75,21 +94,25 @@ registerCommandHandlers(client);
 
 // Handle client errors
 client.on('error', (error) => {
-    console.error('Discord client error:', error);
+    const correlationId = correlation.startCorrelation();
+    logger.error('Discord client error', { correlationId, error });
+    correlation.endCorrelation();
 });
 
 // Handle graceful shutdown
 process.on('SIGINT', async () => {
-    console.log('Shutting down...');
+    const correlationId = correlation.startCorrelation();
+    logger.info('Received shutdown signal, initiating graceful shutdown', { correlationId });
 
     try {
         await serviceManager.shutdown();
         client.destroy();
-        console.log('Graceful shutdown completed');
+        logger.info('Graceful shutdown completed successfully', { correlationId });
     } catch (error) {
-        console.error('Error during shutdown:', error);
+        logger.error('Error during shutdown', { correlationId, error });
     }
 
+    correlation.endCorrelation();
     process.exit(0);
 });
 

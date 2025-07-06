@@ -1,28 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
-const axios = require('axios');
-
-// Function to send data to n8n - copied from index.js to maintain consistency
-const sendToN8n = async (data, eventType) => {
-    try {
-        const payload = {
-            event_type: eventType,
-            timestamp: Date.now(),
-            ...data
-        };
-
-        // Log the payload in a readable format
-        console.log('\nSending to n8n:');
-        console.log('Event Type:', eventType);
-        console.log('Timestamp:', new Date(payload.timestamp).toISOString());
-        console.log('Payload:', JSON.stringify(payload, null, 2));
-        console.log('----------------------------------------');
-
-        await axios.post(process.env.N8N_WEBHOOK_URL, payload);
-        console.log(`Successfully forwarded ${eventType} to n8n`);
-    } catch (error) {
-        console.error(`Error forwarding ${eventType} to n8n:`, error);
-    }
-};
+const { sendToN8n } = require('../lib/n8n-service');
+const { logger, correlation } = require('../lib/logging');
 
 // Create the scrape command
 const scrapeCommand = {
@@ -43,6 +21,8 @@ const scrapeCommand = {
                 .setRequired(true)),
 
     async execute(interaction) {
+        const correlationId = correlation.getCorrelationId();
+        
         try {
             const url = interaction.options.getString('url');
             const extractionRequest = interaction.options.getString('extraction_request');
@@ -50,12 +30,26 @@ const scrapeCommand = {
 
             // Validate URL
             if (!url.match(/^https?:\/\/.+/)) {
+                logger.warn('Invalid URL provided in scrape command', {
+                    correlationId,
+                    url,
+                    userId: interaction.user.id
+                });
+
                 await interaction.reply({
                     content: 'Please provide a valid URL starting with http:// or https://',
                     ephemeral: true
                 });
                 return;
             }
+
+            logger.info('Processing scrape command', {
+                correlationId,
+                url,
+                extractionRequest: extractionRequest.substring(0, 100),
+                outputSchema: outputSchema.substring(0, 100),
+                userId: interaction.user.id
+            });
 
             await interaction.deferReply();
 
@@ -64,7 +58,10 @@ const scrapeCommand = {
                 url: url,
                 extraction_request: extractionRequest,
                 output_schema: outputSchema,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                user_id: interaction.user.id,
+                guild_id: interaction.guildId,
+                channel_id: interaction.channelId
             };
 
             // Send to n8n webhook for processing
@@ -80,19 +77,37 @@ const scrapeCommand = {
                 ephemeral: true
             });
 
+            logger.info('Scrape command completed successfully', {
+                correlationId,
+                url,
+                userId: interaction.user.id
+            });
+
         } catch (error) {
-            console.error('Error in scrape command:', error);
+            logger.error('Error in scrape command execution', {
+                correlationId,
+                error,
+                userId: interaction.user?.id
+            });
+
             const errorMessage = 'An error occurred while sending the URL to n8n.';
 
-            if (!interaction.deferred) {
-                await interaction.reply({
-                    content: errorMessage,
-                    ephemeral: true
-                });
-            } else {
-                await interaction.editReply({
-                    content: errorMessage,
-                    ephemeral: true
+            try {
+                if (!interaction.deferred) {
+                    await interaction.reply({
+                        content: errorMessage,
+                        ephemeral: true
+                    });
+                } else {
+                    await interaction.editReply({
+                        content: errorMessage,
+                        ephemeral: true
+                    });
+                }
+            } catch (replyError) {
+                logger.error('Failed to send error response in scrape command', {
+                    correlationId,
+                    error: replyError
                 });
             }
         }

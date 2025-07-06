@@ -1,9 +1,21 @@
 {
-  "timestamp": "2025-07-06T10:49:39.481Z",
+  "timestamp": "2025-07-06T16:09:09.933Z",
   "maxLines": 250,
   "triggerThreshold": 240,
   "violations": [],
   "warnings": [
+    {
+      "path": "services/healthMonitor.js",
+      "lines": 250,
+      "overLimit": 0,
+      "nearLimit": 0
+    },
+    {
+      "path": "services/n8nRouter.js",
+      "lines": 250,
+      "overLimit": 0,
+      "nearLimit": 0
+    },
     {
       "path": "config/environment.js",
       "lines": 246,
@@ -13,10 +25,40 @@
   ],
   "compliant": [
     {
-      "path": "services/n8nRouter.js",
+      "path": "services/index.js",
+      "lines": 237,
+      "overLimit": -13,
+      "nearLimit": 13
+    },
+    {
+      "path": "lib/logging/logger.js",
       "lines": 233,
       "overLimit": -17,
       "nearLimit": 17
+    },
+    {
+      "path": "services/concurrentRequestManager.js",
+      "lines": 233,
+      "overLimit": -17,
+      "nearLimit": 17
+    },
+    {
+      "path": "lib/errors/utils.js",
+      "lines": 230,
+      "overLimit": -20,
+      "nearLimit": 20
+    },
+    {
+      "path": "lib/middleware/error-handler.js",
+      "lines": 230,
+      "overLimit": -20,
+      "nearLimit": 20
+    },
+    {
+      "path": "lib/errors/base.js",
+      "lines": 227,
+      "overLimit": -23,
+      "nearLimit": 23
     },
     {
       "path": "scripts/file-size-monitor.js",
@@ -29,6 +71,12 @@
       "lines": 206,
       "overLimit": -44,
       "nearLimit": 44
+    },
+    {
+      "path": "lib/errors/specialized.js",
+      "lines": 204,
+      "overLimit": -46,
+      "nearLimit": 46
     },
     {
       "path": "config/loader.js",
@@ -49,10 +97,22 @@
       "nearLimit": 52
     },
     {
+      "path": "services/requestHandler-clean.js",
+      "lines": 196,
+      "overLimit": -54,
+      "nearLimit": 54
+    },
+    {
       "path": "services/requestHandler.js",
-      "lines": 198,
-      "overLimit": -52,
-      "nearLimit": 52
+      "lines": 196,
+      "overLimit": -54,
+      "nearLimit": 54
+    },
+    {
+      "path": "lib/middleware/validation.js",
+      "lines": 191,
+      "overLimit": -59,
+      "nearLimit": 59
     },
     {
       "path": "config/schema.js",
@@ -61,10 +121,10 @@
       "nearLimit": 64
     },
     {
-      "path": "services/index.js",
-      "lines": 166,
-      "overLimit": -84,
-      "nearLimit": 84
+      "path": "services/circuitBreakerManager.js",
+      "lines": 182,
+      "overLimit": -68,
+      "nearLimit": 68
     },
     {
       "path": "services/routingTableBuilder.js",
@@ -83,12 +143,6 @@
       "lines": 154,
       "overLimit": -96,
       "nearLimit": 96
-    },
-    {
-      "path": "services/circuitBreakerManager.js",
-      "lines": 142,
-      "overLimit": -108,
-      "nearLimit": 108
     },
     {
       "path": "config/schema-design.md",
@@ -115,10 +169,52 @@
       "nearLimit": 123
     },
     {
+      "path": "lib/logging/correlation.js",
+      "lines": 127,
+      "overLimit": -123,
+      "nearLimit": 123
+    },
+    {
       "path": "DOCKER.md",
       "lines": 125,
       "overLimit": -125,
       "nearLimit": 125
+    },
+    {
+      "path": "index.js",
+      "lines": 124,
+      "overLimit": -126,
+      "nearLimit": 126
+    },
+    {
+      "path": "commands/scrape.js",
+      "lines": 118,
+      "overLimit": -132,
+      "nearLimit": 132
+    },
+    {
+      "path": "services/fallbackResponseManager.js",
+      "lines": 118,
+      "overLimit": -132,
+      "nearLimit": 132
+    },
+    {
+      "path": "services/responseTransformer.js",
+      "lines": 115,
+      "overLimit": -135,
+      "nearLimit": 135
+    },
+    {
+      "path": "lib/middleware/validators.js",
+      "lines": 113,
+      "overLimit": -137,
+      "nearLimit": 137
+    },
+    {
+      "path": "services/responseNormalizers.js",
+      "lines": 113,
+      "overLimit": -137,
+      "nearLimit": 137
     },
     {
       "path": "README.md",
@@ -139,16 +235,10 @@
       "nearLimit": 146
     },
     {
-      "path": "commands/scrape.js",
+      "path": "lib/commands.js",
       "lines": 103,
       "overLimit": -147,
       "nearLimit": 147
-    },
-    {
-      "path": "index.js",
-      "lines": 101,
-      "overLimit": -149,
-      "nearLimit": 149
     },
     {
       "path": "lib/formatters.js",
@@ -169,22 +259,52 @@
       "nearLimit": 164
     },
     {
+      "path": "lib/event-handlers/reaction-handler.js",
+      "lines": 85,
+      "overLimit": -165,
+      "nearLimit": 165
+    },
+    {
+      "path": "services/responseValidators.js",
+      "lines": 83,
+      "overLimit": -167,
+      "nearLimit": 167
+    },
+    {
+      "path": "lib/middleware/global-error-handler.js",
+      "lines": 82,
+      "overLimit": -168,
+      "nearLimit": 168
+    },
+    {
       "path": "config/index.js",
       "lines": 68,
       "overLimit": -182,
       "nearLimit": 182
     },
     {
-      "path": "lib/event-handlers/reaction-handler.js",
-      "lines": 68,
-      "overLimit": -182,
-      "nearLimit": 182
-    },
-    {
-      "path": "lib/commands.js",
+      "path": "lib/errors/index.js",
       "lines": 64,
       "overLimit": -186,
       "nearLimit": 186
+    },
+    {
+      "path": "services/responseUtils.js",
+      "lines": 59,
+      "overLimit": -191,
+      "nearLimit": 191
+    },
+    {
+      "path": "lib/n8n-service.js",
+      "lines": 58,
+      "overLimit": -192,
+      "nearLimit": 192
+    },
+    {
+      "path": "lib/event-handlers/message-handler.js",
+      "lines": 57,
+      "overLimit": -193,
+      "nearLimit": 193
     },
     {
       "path": ".taskmaster/templates/example_prd.txt",
@@ -193,40 +313,52 @@
       "nearLimit": 203
     },
     {
-      "path": "lib/event-handlers/message-handler.js",
-      "lines": 40,
-      "overLimit": -210,
-      "nearLimit": 210
-    },
-    {
-      "path": "lib/n8n-service.js",
-      "lines": 39,
-      "overLimit": -211,
-      "nearLimit": 211
-    },
-    {
       "path": ".taskmaster/config.json",
       "lines": 37,
       "overLimit": -213,
       "nearLimit": 213
     },
     {
-      "path": "package.json",
-      "lines": 27,
-      "overLimit": -223,
-      "nearLimit": 223
+      "path": "lib/middleware/index.js",
+      "lines": 37,
+      "overLimit": -213,
+      "nearLimit": 213
     },
     {
       "path": "deploy-commands.js",
-      "lines": 24,
-      "overLimit": -226,
-      "nearLimit": 226
+      "lines": 36,
+      "overLimit": -214,
+      "nearLimit": 214
+    },
+    {
+      "path": "package.json",
+      "lines": 30,
+      "overLimit": -220,
+      "nearLimit": 220
     },
     {
       "path": "docker-compose.yml",
       "lines": 21,
       "overLimit": -229,
       "nearLimit": 229
+    },
+    {
+      "path": "lib/logging/index.js",
+      "lines": 18,
+      "overLimit": -232,
+      "nearLimit": 232
+    },
+    {
+      "path": "logs/.447e45eab041a9be55e417b5fd6ba41a053fcea8-audit.json",
+      "lines": 15,
+      "overLimit": -235,
+      "nearLimit": 235
+    },
+    {
+      "path": "logs/.b40a7662fff206c6516c2615a2d4ed378f18057b-audit.json",
+      "lines": 15,
+      "overLimit": -235,
+      "nearLimit": 235
     },
     {
       "path": ".taskmaster/state.json",
@@ -236,9 +368,9 @@
     }
   ],
   "summary": {
-    "totalFiles": 38,
+    "totalFiles": 60,
     "violationCount": 0,
-    "warningCount": 1,
-    "compliantCount": 37
+    "warningCount": 3,
+    "compliantCount": 57
   }
 }

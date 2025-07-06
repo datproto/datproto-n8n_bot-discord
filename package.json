@@ -21,6 +21,9 @@
     "dotenv": "^16.5.0",
     "joi": "^17.13.3",
     "lodash": "^4.17.21",
-    "opossum": "^8.5.0"
+    "opossum": "^8.5.0",
+    "uuid": "^9.0.1",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^4.7.1"
   }
 }
