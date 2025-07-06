@@ -1,17 +1,23 @@
 {
-  "timestamp": "2025-07-05T20:51:40.484Z",
+  "timestamp": "2025-07-06T10:49:39.481Z",
   "maxLines": 250,
   "triggerThreshold": 240,
   "violations": [],
   "warnings": [
     {
       "path": "config/environment.js",
-      "lines": 249,
-      "overLimit": -1,
-      "nearLimit": 1
+      "lines": 246,
+      "overLimit": -4,
+      "nearLimit": 4
     }
   ],
   "compliant": [
+    {
+      "path": "services/n8nRouter.js",
+      "lines": 233,
+      "overLimit": -17,
+      "nearLimit": 17
+    },
     {
       "path": "scripts/file-size-monitor.js",
       "lines": 212,
@@ -19,7 +25,31 @@
       "nearLimit": 38
     },
     {
+      "path": "services/endpointManager.js",
+      "lines": 206,
+      "overLimit": -44,
+      "nearLimit": 44
+    },
+    {
+      "path": "config/loader.js",
+      "lines": 203,
+      "overLimit": -47,
+      "nearLimit": 47
+    },
+    {
+      "path": "config/hot-reload.js",
+      "lines": 202,
+      "overLimit": -48,
+      "nearLimit": 48
+    },
+    {
       "path": "config/validator.js",
+      "lines": 198,
+      "overLimit": -52,
+      "nearLimit": 52
+    },
+    {
+      "path": "services/requestHandler.js",
       "lines": 198,
       "overLimit": -52,
       "nearLimit": 52
@@ -31,10 +61,34 @@
       "nearLimit": 64
     },
     {
+      "path": "services/index.js",
+      "lines": 166,
+      "overLimit": -84,
+      "nearLimit": 84
+    },
+    {
+      "path": "services/routingTableBuilder.js",
+      "lines": 166,
+      "overLimit": -84,
+      "nearLimit": 84
+    },
+    {
+      "path": "config/defaults.js",
+      "lines": 162,
+      "overLimit": -88,
+      "nearLimit": 88
+    },
+    {
       "path": "docs/architecture.md",
       "lines": 154,
       "overLimit": -96,
       "nearLimit": 96
+    },
+    {
+      "path": "services/circuitBreakerManager.js",
+      "lines": 142,
+      "overLimit": -108,
+      "nearLimit": 108
     },
     {
       "path": "config/schema-design.md",
@@ -91,6 +145,12 @@
       "nearLimit": 147
     },
     {
+      "path": "index.js",
+      "lines": 101,
+      "overLimit": -149,
+      "nearLimit": 149
+    },
+    {
       "path": "lib/formatters.js",
       "lines": 97,
       "overLimit": -153,
@@ -109,10 +169,10 @@
       "nearLimit": 164
     },
     {
-      "path": "index.js",
-      "lines": 70,
-      "overLimit": -180,
-      "nearLimit": 180
+      "path": "config/index.js",
+      "lines": 68,
+      "overLimit": -182,
+      "nearLimit": 182
     },
     {
       "path": "lib/event-handlers/reaction-handler.js",
@@ -152,9 +212,9 @@
     },
     {
       "path": "package.json",
-      "lines": 25,
-      "overLimit": -225,
-      "nearLimit": 225
+      "lines": 27,
+      "overLimit": -223,
+      "nearLimit": 223
     },
     {
       "path": "deploy-commands.js",
@@ -176,9 +236,9 @@
     }
   ],
   "summary": {
-    "totalFiles": 28,
+    "totalFiles": 38,
     "violationCount": 0,
     "warningCount": 1,
-    "compliantCount": 27
+    "compliantCount": 37
   }
 }

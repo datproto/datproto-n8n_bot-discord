@@ -15,6 +15,9 @@ const { registerReactionHandlers } = require('./lib/event-handlers/reaction-hand
 const { registerThreadHandlers } = require('./lib/event-handlers/thread-handler');
 const { registerCommandHandlers } = require('./lib/commands');
 
+// Import service manager
+const { serviceManager } = require('./services');
+
 // Create Discord client with required intents
 const client = new Client({
     intents: [
@@ -39,9 +42,29 @@ const client = new Client({
     partials: [Partials.Channel, Partials.Message, Partials.Reaction, Partials.ThreadMember, Partials.User]
 });
 
+// Initialize services
+async function initializeServices() {
+    try {
+        await serviceManager.initialize({
+            n8nRouter: {
+                timeout: parseInt(process.env.N8N_TIMEOUT) || 30000,
+                retryAttempts: parseInt(process.env.N8N_RETRY_ATTEMPTS) || 3,
+                maxConcurrentRequests: parseInt(process.env.N8N_MAX_CONCURRENT) || 10
+            }
+        });
+        console.log('Services initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize services:', error);
+        process.exit(1);
+    }
+}
+
 // Client ready event
-client.once('ready', () => {
+client.once('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
+
+    // Initialize services after Discord client is ready
+    await initializeServices();
 });
 
 // Register all event handlers
@@ -56,14 +79,22 @@ client.on('error', (error) => {
 });
 
 // Handle graceful shutdown
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
     console.log('Shutting down...');
-    client.destroy();
+
+    try {
+        await serviceManager.shutdown();
+        client.destroy();
+        console.log('Graceful shutdown completed');
+    } catch (error) {
+        console.error('Error during shutdown:', error);
+    }
+
     process.exit(0);
 });
 
 // Login to Discord
 client.login(process.env.DISCORD_TOKEN);
 
-// Export client for testing purposes
-module.exports = { client };
+// Export client and service manager for testing purposes
+module.exports = { client, serviceManager };

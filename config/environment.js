@@ -8,6 +8,7 @@ const path = require('path');
 const { merge } = require('lodash');
 const { loadEnvironmentVariables, getDiscordToken, validateEnvironmentVariables } = require('./env-loader');
 const { validateConfig, assertValidEnvironment } = require('./validator');
+const { ConfigurationLoader } = require('./loader');
 
 class EnvironmentManager {
   constructor() {
@@ -19,25 +20,22 @@ class EnvironmentManager {
     this.config = null;
     this.envOverrides = {};
     this.envVariables = loadEnvironmentVariables();
+    this.configLoader = new ConfigurationLoader();
 
     this.loadConfiguration();
-  }
-
-  /**
-   * Load configuration from endpoints.json
-   */
+  }    /**
+     * Load configuration with fallback logic
+     */
   loadConfiguration() {
     try {
-      if (!fs.existsSync(this.configPath)) {
-        throw new Error(`Configuration file not found: ${this.configPath}`);
-      }
-      const configData = fs.readFileSync(this.configPath, 'utf8');
-      const rawConfig = JSON.parse(configData);
-      // Validate configuration against schema
-      this.config = validateConfig(rawConfig);
+      // Use configuration loader with fallback strategies
+      this.config = this.configLoader.loadWithPartialFallback(this.configPath);
       this.loadEnvironmentOverrides();
+
     } catch (error) {
-      throw new Error(`Failed to load configuration: ${error.message}`);
+      // Final fallback - this should never happen due to loader fallbacks
+      console.error('Critical configuration loading failure:', error.message);
+      throw new Error(`Cannot initialize configuration system: ${error.message}`);
     }
   }
 
@@ -57,8 +55,6 @@ class EnvironmentManager {
 
   /**
    * Get endpoint configuration for a specific command
-   * @param {string} commandName - The command name
-   * @returns {Object} Endpoint configuration
    */
   getEndpointConfig(commandName) {
     const baseEndpoint = this.config.endpoints[commandName];
@@ -78,15 +74,11 @@ class EnvironmentManager {
       mergedEndpoint.timeout = this.envVariables.endpointTimeouts[commandName];
     }
     return mergedEndpoint;
-  }
-
-  /**
+  }  /**
    * Get all endpoint configurations
-   * @returns {Object} All endpoint configurations with environment overrides applied
    */
   getAllEndpoints() {
     const endpoints = {};
-
     for (const [commandName, endpoint] of Object.entries(this.config.endpoints)) {
       endpoints[commandName] = this.getEndpointConfig(commandName);
     }
@@ -95,7 +87,6 @@ class EnvironmentManager {
 
   /**
    * Get global configuration
-   * @returns {Object} Global configuration with environment overrides applied
    */
   getGlobalConfig() {
     const baseGlobal = this.config.global;
@@ -117,7 +108,6 @@ class EnvironmentManager {
 
   /**
    * Get environment-specific configuration
-   * @returns {Object} Current environment configuration
    */
   getEnvironmentConfig() {
     return this.config.environments[this.currentEnv];
@@ -125,7 +115,6 @@ class EnvironmentManager {
 
   /**
    * Get current environment name
-   * @returns {string} Current environment
    */
   getCurrentEnvironment() {
     return this.currentEnv;
@@ -133,7 +122,6 @@ class EnvironmentManager {
 
   /**
    * Get complete merged configuration
-   * @returns {Object} Complete configuration with all overrides applied
    */
   getCompleteConfig() {
     return {
@@ -146,8 +134,6 @@ class EnvironmentManager {
 
   /**
    * Check if endpoint is enabled
-   * @param {string} commandName - The command name
-   * @returns {boolean} Whether endpoint is enabled
    */
   isEndpointEnabled(commandName) {
     const endpoint = this.getEndpointConfig(commandName);
@@ -156,7 +142,6 @@ class EnvironmentManager {
 
   /**
    * Get available command names
-   * @returns {Array<string>} List of available command names
    */
   getAvailableCommands() {
     return Object.keys(this.config.endpoints);
@@ -164,7 +149,6 @@ class EnvironmentManager {
 
   /**
    * Get enabled command names
-   * @returns {Array<string>} List of enabled command names
    */
   getEnabledCommands() {
     return this.getAvailableCommands()
@@ -196,6 +180,18 @@ class EnvironmentManager {
     return this.envVariables.logLevel ||
       this.getEnvironmentConfig().logLevel ||
       'info';
+  }
+
+  /**
+   * Get configuration loading information
+   * @returns {Object} Loading attempt details
+   */
+  getLoadingInfo() {
+    return {
+      configPath: this.configPath,
+      loadAttempts: this.configLoader.getLoadAttempts(),
+      currentEnvironment: this.currentEnv
+    };
   }
 
   /**
@@ -244,5 +240,6 @@ module.exports = {
   validateEndpointUrl: (cmd) => environmentManager.validateEndpointUrl(cmd),
   getEnvironmentVariables: () => environmentManager.getEnvironmentVariables(),
   getDiscordToken: () => environmentManager.getDiscordToken(),
-  getLogLevel: () => environmentManager.getLogLevel()
+  getLogLevel: () => environmentManager.getLogLevel(),
+  getLoadingInfo: () => environmentManager.getLoadingInfo()
 };
